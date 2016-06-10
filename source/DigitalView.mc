@@ -16,7 +16,7 @@ class DigitalView extends Ui.WatchFace {
     enum { WOMAN, MEN }
     const STEP_COLORS = [ Gfx.COLOR_RED, Gfx.COLOR_ORANGE, Gfx.COLOR_YELLOW, Gfx.COLOR_DK_GREEN, Gfx.COLOR_GREEN ];
     var weekdays = new [7];
-    var timeFont, dateFont, valueFont;
+    var timeFont, dateFont, valueFont, distanceFont;
     var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon;
     var batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;
     var heartRate;    
@@ -29,7 +29,8 @@ class DigitalView extends Ui.WatchFace {
     function onLayout(dc) {        
         timeFont      = Ui.loadResource(Rez.Fonts.digitalUpright66);
         dateFont      = Ui.loadResource(Rez.Fonts.digitalUpright26);
-        valueFont     = Ui.loadResource(Rez.Fonts.digitalUpright24);        
+        valueFont     = Ui.loadResource(Rez.Fonts.digitalUpright24);
+        distanceFont  = Ui.loadResource(Rez.Fonts.digitalUpright16);
         batteryIcon   = Ui.loadResource(Rez.Drawables.battery);
         bleIcon       = Ui.loadResource(Rez.Drawables.ble);
         bpmIcon       = Ui.loadResource(Rez.Drawables.bpm);
@@ -76,7 +77,7 @@ class DigitalView extends Ui.WatchFace {
         var steps                = actinfo.steps;
         var stepGoal             = actinfo.stepGoal;
         var stepsReached         = steps.toDouble() / stepGoal;
-        var distance             = actinfo.distance;
+        var distance             = actinfo.distance * 0.00001;
         var kcal                 = actinfo.calories;
         var bpm                  = (hr.heartRate != Act.INVALID_HR_SAMPLE && hr.heartRate > 0) ? hr.heartRate : 0;
         var charge               = systemStats.battery;
@@ -141,10 +142,7 @@ class DigitalView extends Ui.WatchFace {
         dc.drawLine(0, 121, width, 121);
         dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
         dc.drawLine(0, 122, width, 122);
-                
-        dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-        dc.fillRectangle(106, 121, 3, 28);
-        
+
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
         dc.fillRectangle(0, 149, width, 3);
         
@@ -152,6 +150,9 @@ class DigitalView extends Ui.WatchFace {
         dc.drawLine(0, 152, width, 152);
         dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
         dc.drawLine(0, 153, width, 153);
+        
+        dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+        dc.fillRectangle(106, 121, 3, 59);
             
         
         // Notification
@@ -177,12 +178,16 @@ class DigitalView extends Ui.WatchFace {
 
         // BPM
         if (showBpmZones) {
-            dc.drawBitmap(80, 158, bpmZoneIcons[currentZone - 1]);            
+            dc.drawBitmap(39, 158, bpmZoneIcons[currentZone - 1]);            
         } else {
-            dc.drawBitmap(80, 158, bpmIcon);
+            dc.drawBitmap(39, 158, bpmIcon);
         }        
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);        
-        dc.drawText(146, 154, valueFont, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);
+        dc.drawText(102, 155, valueFont, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);
+
+        // Distance
+        dc.drawText(156, 155, valueFont, distance.format("%0.1f"), Gfx.TEXT_JUSTIFY_RIGHT);
+        dc.drawText(172, 162, distanceFont, "km", Gfx.TEXT_JUSTIFY_RIGHT);
 
         // Step Bar background
         dc.setPenWidth(8);           
