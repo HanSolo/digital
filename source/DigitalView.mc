@@ -119,6 +119,7 @@ class DigitalView extends Ui.WatchFace {
 
             
         // Draw Background
+        dc.setPenWidth(1);     
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
         dc.fillRectangle(0, 0, width, 121);
         
