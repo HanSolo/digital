@@ -18,7 +18,7 @@ class DigitalView extends Ui.WatchFace {
     var weekdays = new [7];
     var timeFont, dateFont, valueFont;
     var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon;
-    var batteryIcon, bleIcon, bpmIcon, burnedIcon, stepsIcon;
+    var batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;
     var heartRate;    
 
     function initialize() {
@@ -39,6 +39,7 @@ class DigitalView extends Ui.WatchFace {
         bpm4Icon      = Ui.loadResource(Rez.Drawables.bpm4);
         bpm5Icon      = Ui.loadResource(Rez.Drawables.bpm5);
         burnedIcon    = Ui.loadResource(Rez.Drawables.burned);
+        mailIcon      = Ui.loadResource(Rez.Drawables.mail);
         stepsIcon     = Ui.loadResource(Rez.Drawables.steps);      
         weekdays[0]   = Ui.loadResource(Rez.Strings.Sun);
         weekdays[1]   = Ui.loadResource(Rez.Strings.Mon);
@@ -75,6 +76,7 @@ class DigitalView extends Ui.WatchFace {
         var steps                = actinfo.steps;
         var stepGoal             = actinfo.stepGoal;
         var stepsReached         = steps.toDouble() / stepGoal;
+        var distance             = actinfo.distance;
         var kcal                 = actinfo.calories;
         var bpm                  = (hr.heartRate != Act.INVALID_HR_SAMPLE && hr.heartRate > 0) ? hr.heartRate : 0;
         var charge               = systemStats.battery;
@@ -82,11 +84,12 @@ class DigitalView extends Ui.WatchFace {
         var lcdBackgroundVisible = Application.getApp().getProperty("LcdBackground"); 
         var connected            = Sys.getDeviceSettings().phoneConnected;        
         var profile              = UserProfile.getProfile();
+        var notificationCount    = Sys.getDeviceSettings().notificationCount;
         var gender;
         var userWeight;
         var userHeight;
         var userAge;
-        
+                
         if (profile == null) {
             gender     = Application.getApp().getProperty("Gender");
             userWeight = Application.getApp().getProperty("Weight");
@@ -150,6 +153,10 @@ class DigitalView extends Ui.WatchFace {
         dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
         dc.drawLine(0, 153, width, 153);
             
+        
+        // Notification
+        if (notificationCount > 0) { dc.drawBitmap(58, 4, mailIcon); }    
+            
         // Battery
         dc.drawBitmap(95, 4, batteryIcon);
         dc.setColor(charge < 20 ? Gfx.COLOR_RED : Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
@@ -159,14 +166,14 @@ class DigitalView extends Ui.WatchFace {
         if (connected) { dc.drawBitmap(139, 2, bleIcon); }
        
        // Steps
-        dc.drawBitmap(21, 127, stepsIcon);
+        dc.drawBitmap(18, 127, stepsIcon);
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-        dc.drawText(98, 124, valueFont, steps, Gfx.TEXT_JUSTIFY_RIGHT);
+        dc.drawText(102, 124, valueFont, steps, Gfx.TEXT_JUSTIFY_RIGHT);
             
         // KCal
-        dc.drawBitmap(181, 127, burnedIcon);
+        dc.drawBitmap(183, 127, burnedIcon);
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-        dc.drawText(173, 124, valueFont, kcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);        
+        dc.drawText(179, 124, valueFont, kcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);        
 
         // BPM
         if (showBpmZones) {
@@ -186,7 +193,8 @@ class DigitalView extends Ui.WatchFace {
         }
         
         // Step Goal Bar
-        dc.setColor(STEP_COLORS[(stepsReached * 5.0).toNumber()], Gfx.COLOR_TRANSPARENT);
+        stepsReached = stepsReached > 1.0 ? 1.0 : stepsReached;        
+        dc.setColor(STEP_COLORS[(stepsReached * 4.0).toNumber()], Gfx.COLOR_TRANSPARENT);
         var stopAngleLeft = (190.0 - 59.0 * stepsReached).toNumber();
         stopAngleLeft = stopAngleLeft < 136.0 ? 136.0 : stopAngleLeft;
         for(var i = 10; i >= 0 ; i--) {

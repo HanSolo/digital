@@ -9,5 +9,6 @@
     <bitmap id="bpm4"    filename="bpm4.png" />
     <bitmap id="bpm5"    filename="bpm5.png" />
     <bitmap id="burned"  filename="burned.png" />
+    <bitmap id="mail"    filename="mail.png" />
     <bitmap id="steps"   filename="steps.png" />
 </drawables>

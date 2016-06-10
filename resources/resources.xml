@@ -11,6 +11,7 @@
     <bitmap id="bpm4"  			  filename="drawables/bpm4.png" />
     <bitmap id="bpm5"  			  filename="drawables/bpm5.png" />
     <bitmap id="burned" 	      filename="drawables/burned.png" />
+    <bitmap id="mail"    	      filename="drawables/mail.png" />
     <bitmap id="steps"    		  filename="drawables/steps.png" />    
 
     <fonts>
