@@ -1,0 +1,22 @@
+<settings>
+
+    <setting propertyKey="@Properties.Gender" title="@Strings.Gender">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.Female</listEntry>
+            <listEntry value="1">@Strings.Male</listEntry>            
+        </settingConfig>
+    </setting>
+    
+    <setting propertyKey="@Properties.Weight" title="@Strings.Weight">        
+        <settingConfig type="numeric" />        
+    </setting>
+    
+    <setting propertyKey="@Properties.Height" title="@Strings.Height">
+        <settingConfig type="numeric" />
+    </setting>
+    
+    <setting propertyKey="@Properties.Age" title="@Strings.Age">
+        <settingConfig type="numeric" />
+    </setting>
+        
+</settings>

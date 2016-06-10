@@ -1,0 +1,8 @@
+<drawables>
+    <bitmap id="LauncherIcon" filename="launcher_icon.png" />
+    <bitmap id="battery" filename="battery.png" />
+    <bitmap id="ble" filename="ble.png" />
+    <bitmap id="bpm" filename="bpm.png" />
+    <bitmap id="burned" filename="burned.png" />
+    <bitmap id="steps" filename="steps.png" />
+</drawables>

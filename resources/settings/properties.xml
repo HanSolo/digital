@@ -1,0 +1,8 @@
+<properties>
+
+    <property id="Gender" type="number">1</property>
+    <property id="Weight" type="number">79</property>
+    <property id="Height" type="number">189</property>
+    <property id="Age"    type="number">46</property>
+
+</properties>

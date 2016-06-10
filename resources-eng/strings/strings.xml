@@ -1,0 +1,34 @@
+<strings>
+
+    <string id="AppName">Digital</string>
+
+    <string id="Gender">Gender</string>
+    <string id="Female">Female</string>
+    <string id="Male">Male</string>    
+
+	<string id="Weight">Weight [kg]</string>
+	
+	<string id="Height">Height [cm]</string>
+	
+	<string id="Age">Age</string>
+	
+	<string id="BpmZones">Visualize BPM Zones</string>
+	
+	<string id="Theme">Color Theme</string>
+	<string id="Dark">Dark</string>
+	<string id="Light">Light</string>
+	
+	<string id="Fonts">Fonts</string>
+	<string id="RegularFont">Regular Font</string>
+	<string id="MediumFont">Medium Font</string>
+	<string id="BoldFont">Bold Font</string>
+	
+	<string id="Sun">SU </string>
+	<string id="Mon">MO </string>
+	<string id="Tue">TU </string>
+	<string id="Wed">WE </string>
+	<string id="Thu">TH </string>
+	<string id="Fri">FR </string>
+	<string id="Sat">SA </string>
+
+</strings>

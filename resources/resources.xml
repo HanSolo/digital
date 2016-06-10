@@ -1,0 +1,16 @@
+<resources>
+    <string id="AppName">Digital</string>
+
+    <bitmap id="LauncherIcon"     filename="drawables/launcher_icon.png" />
+    <bitmap id="battery"          filename="drawables/battery.png" />
+    <bitmap id="ble"              filename="drawables/ble.png" />
+    <bitmap id="bpm"  			  filename="drawables/bpm.png" />
+    <bitmap id="burned" 	      filename="drawables/burned.png" />
+    <bitmap id="steps"    		  filename="drawables/steps.png" />    
+
+    <fonts>
+        <font id="digitalUpright66" filename="fonts/DigitalUprightThick_66.fnt" filter="0123456789: "/>
+        <font id="digitalUpright26" filename="fonts/DigitalUprightThick_26.fnt" filter="ADEFHIJLMORSTUVW0123456789. "/>
+        <font id="digitalUpright24" filename="fonts/DigitalUprightThick_24.fnt" filter="0123456789 "/>
+    </fonts>
+</resources>
