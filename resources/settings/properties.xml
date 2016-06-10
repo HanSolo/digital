@@ -4,5 +4,7 @@
     <property id="Weight" type="number">79</property>
     <property id="Height" type="number">189</property>
     <property id="Age"    type="number">46</property>
+    
+    <property id="LcdBackground" type="boolean">false</property>
 
 </properties>

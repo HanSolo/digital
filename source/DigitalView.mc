@@ -13,7 +13,8 @@ using Toybox.Application as App;
 using Toybox.UserProfile as UserProfile;
 
 class DigitalView extends Ui.WatchFace {
-    enum { WOMAN, MEN }    
+    enum { WOMAN, MEN }
+    const STEP_COLORS = [ Gfx.COLOR_RED, Gfx.COLOR_ORANGE, Gfx.COLOR_YELLOW, Gfx.COLOR_DK_GREEN, Gfx.COLOR_GREEN ];
     var weekdays = new [7];
     var timeFont, dateFont, valueFont;
     var batteryIcon, bleIcon, bpmIcon, burnedIcon, stepsIcon;
@@ -53,24 +54,26 @@ class DigitalView extends Ui.WatchFace {
         View.onUpdate(dc);
 
         // General
-        var width       = dc.getWidth();
-        var height      = dc.getHeight();
-        var centerX     = width * 0.5;
-        var centerY     = height * 0.5;
-        var clockTime   = Sys.getClockTime();
-        var nowinfo     = Greg.info(Time.now(), Time.FORMAT_SHORT);
-        var actinfo     = Act.getInfo();
-        var systemStats = Sys.getSystemStats();
-        var hrIter      = Act.getHeartRateHistory(null, true);
-        var hr          = hrIter.next();
-        var steps       = actinfo.steps;
-        var stepGoal    = actinfo.stepGoal;
-        var kcal        = actinfo.calories;
-        var bpm         = (hr.heartRate != Act.INVALID_HR_SAMPLE && hr.heartRate > 0) ? hr.heartRate : 0;
-        var charge      = systemStats.battery;
-        var dayOfWeek   = nowinfo.day_of_week;
-        var connected   = Sys.getDeviceSettings().phoneConnected;        
-        var profile     = UserProfile.getProfile();
+        var width                = dc.getWidth();
+        var height               = dc.getHeight();
+        var centerX              = width * 0.5;
+        var centerY              = height * 0.5;
+        var clockTime            = Sys.getClockTime();
+        var nowinfo              = Greg.info(Time.now(), Time.FORMAT_SHORT);
+        var actinfo              = Act.getInfo();
+        var systemStats          = Sys.getSystemStats();
+        var hrIter               = Act.getHeartRateHistory(null, true);
+        var hr                   = hrIter.next();
+        var steps                = actinfo.steps;
+        var stepGoal             = actinfo.stepGoal;
+        var stepsReached         = steps.toDouble() / stepGoal;
+        var kcal                 = actinfo.calories;
+        var bpm                  = (hr.heartRate != Act.INVALID_HR_SAMPLE && hr.heartRate > 0) ? hr.heartRate : 0;
+        var charge               = systemStats.battery;
+        var dayOfWeek            = nowinfo.day_of_week;
+        var lcdBackgroundVisible = Application.getApp().getProperty("LcdBackground"); 
+        var connected            = Sys.getDeviceSettings().phoneConnected;        
+        var profile              = UserProfile.getProfile();
         var gender;
         var userWeight;
         var userHeight;
@@ -89,9 +92,10 @@ class DigitalView extends Ui.WatchFace {
         }        
                         
         // Mifflin-St.Jeor Formula (1990)
-        var goalMen   = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) + 5;
-        var goalWoman = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) - 161;                
-        var goal      = gender == MEN ? goalMen : goalWoman;
+        var goalMen      = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) + 5;
+        var goalWoman    = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) - 161;                
+        var kcalGoal     = gender == MEN ? goalMen : goalWoman;
+        var kcalReached  = kcal / kcalGoal;
                 
         var showBpmZones = false;
         var maxBpm       = gender == 1 ? (223 - 0.9 * userAge).toNumber() : (226 - 1.0 * userAge).toNumber();        
@@ -156,14 +160,62 @@ class DigitalView extends Ui.WatchFace {
         dc.drawText(173, 124, valueFont, kcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);        
 
         // BPM       
-        dc.drawBitmap(80, 157, bpmIcon);
+        dc.drawBitmap(80, 158, bpmIcon);
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);        
-        dc.drawText(146, 153, valueFont, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);
+        dc.drawText(146, 154, valueFont, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);
 
+        // Step Bar background
+        dc.setPenWidth(8);           
+        dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
+        for(var i = 0; i < 10 ; i++) {            
+            var startAngleLeft  = 136 + (i * 6);
+            dc.drawArc(centerX, centerY, 105, 0, startAngleLeft, startAngleLeft + 5);
+        }
+        
+        // Step Goal Bar
+        dc.setColor(STEP_COLORS[(stepsReached * 5.0).toNumber()], Gfx.COLOR_TRANSPARENT);
+        var stopAngleLeft = (190.0 - 59.0 * stepsReached).toNumber();
+        stopAngleLeft = stopAngleLeft < 136.0 ? 136.0 : stopAngleLeft;
+        for(var i = 10; i >= 0 ; i--) {
+            var startAngleLeft = 190 - (i * 6);
+            if (startAngleLeft >= stopAngleLeft && steps > 0) { dc.drawArc(centerX, centerY, 105, 0, startAngleLeft, startAngleLeft + 5); }
+        }
+
+        // KCal Goal Bar Background        
+        if (kcalReached > 2.0) {
+            dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
+        } else if (kcalReached > 1.0) {
+            dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
+        } else {
+            dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
+        }
+        for(var i = 0; i < 10 ; i++) {            
+            var startAngleRight = -15 + (i * 6);         
+            dc.drawArc(centerX, centerY, 105, 0, startAngleRight, startAngleRight + 5);            
+        }
+                
+        // KCal Goal Bar
+        if (kcalReached > 2.0) {
+            dc.setColor(Gfx.COLOR_GREEN, Gfx.COLOR_TRANSPARENT);
+            kcalReached -= 2.0;
+        } else if (kcalReached > 1.0) {
+            dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
+            kcalReached -= 1.0;
+        } else {
+            dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
+        }
+        var stopAngleRight = (-15.0 + 59.0 * kcalReached).toNumber();
+        stopAngleRight = stopAngleRight > 59.0 ? 59.0 : stopAngleRight;
+        for(var i = 0; i < 10 ; i++) {
+            var startAngleRight = -15 + (i * 6);
+            if (startAngleRight < stopAngleRight) { dc.drawArc(centerX, centerY, 105, 0, startAngleRight, startAngleRight + 5); }
+        }
 
         // Time        
-        dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
-        dc.drawText(centerX, 23, timeFont, "88:88", Gfx.TEXT_JUSTIFY_CENTER);
+        if (lcdBackgroundVisible) {
+            dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
+            dc.drawText(centerX, 23, timeFont, "88:88", Gfx.TEXT_JUSTIFY_CENTER);
+        }
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
         dc.drawText(centerX, 23, timeFont, Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
     

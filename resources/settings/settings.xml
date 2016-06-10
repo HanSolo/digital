@@ -18,5 +18,9 @@
     <setting propertyKey="@Properties.Age" title="@Strings.Age">
         <settingConfig type="numeric" />
     </setting>
+    
+    <setting propertyKey="@Properties.LcdBackground" title="@Strings.LcdBackground">
+        <settingConfig type="boolean" />
+    </setting>
         
 </settings>

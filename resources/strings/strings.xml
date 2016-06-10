@@ -30,5 +30,7 @@
 	<string id="Thu">TH </string>
 	<string id="Fri">FR </string>
 	<string id="Sat">SA </string>
+	
+	<string id="LcdBackground">Show LCD Background</string>
 
 </strings>
