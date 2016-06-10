@@ -17,6 +17,7 @@ class DigitalView extends Ui.WatchFace {
     const STEP_COLORS = [ Gfx.COLOR_RED, Gfx.COLOR_ORANGE, Gfx.COLOR_YELLOW, Gfx.COLOR_DK_GREEN, Gfx.COLOR_GREEN ];
     var weekdays = new [7];
     var timeFont, dateFont, valueFont;
+    var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon;
     var batteryIcon, bleIcon, bpmIcon, burnedIcon, stepsIcon;
     var heartRate;    
 
@@ -32,6 +33,11 @@ class DigitalView extends Ui.WatchFace {
         batteryIcon   = Ui.loadResource(Rez.Drawables.battery);
         bleIcon       = Ui.loadResource(Rez.Drawables.ble);
         bpmIcon       = Ui.loadResource(Rez.Drawables.bpm);
+        bpm1Icon      = Ui.loadResource(Rez.Drawables.bpm1);
+        bpm2Icon      = Ui.loadResource(Rez.Drawables.bpm2);
+        bpm3Icon      = Ui.loadResource(Rez.Drawables.bpm3);
+        bpm4Icon      = Ui.loadResource(Rez.Drawables.bpm4);
+        bpm5Icon      = Ui.loadResource(Rez.Drawables.bpm5);
         burnedIcon    = Ui.loadResource(Rez.Drawables.burned);
         stepsIcon     = Ui.loadResource(Rez.Drawables.steps);      
         weekdays[0]   = Ui.loadResource(Rez.Strings.Sun);
@@ -52,6 +58,8 @@ class DigitalView extends Ui.WatchFace {
     //! Update the view
     function onUpdate(dc) {
         View.onUpdate(dc);
+        
+        var bpmZoneIcons         = [ bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon ];
 
         // General
         var width                = dc.getWidth();
@@ -97,7 +105,7 @@ class DigitalView extends Ui.WatchFace {
         var kcalGoal     = gender == MEN ? goalMen : goalWoman;
         var kcalReached  = kcal / kcalGoal;
                 
-        var showBpmZones = false;
+        var showBpmZones = Application.getApp().getProperty("BpmZones");
         var maxBpm       = gender == 1 ? (223 - 0.9 * userAge).toNumber() : (226 - 1.0 * userAge).toNumber();        
         var bpmZone1     = (0.5 * maxBpm).toNumber();
         var bpmZone2     = (0.6 * maxBpm).toNumber();
@@ -160,8 +168,12 @@ class DigitalView extends Ui.WatchFace {
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
         dc.drawText(173, 124, valueFont, kcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);        
 
-        // BPM       
-        dc.drawBitmap(80, 158, bpmIcon);
+        // BPM
+        if (showBpmZones) {
+            dc.drawBitmap(80, 158, bpmZoneIcons[currentZone - 1]);            
+        } else {
+            dc.drawBitmap(80, 158, bpmIcon);
+        }        
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);        
         dc.drawText(146, 154, valueFont, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);
 

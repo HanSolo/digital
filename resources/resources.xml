@@ -5,6 +5,11 @@
     <bitmap id="battery"          filename="drawables/battery.png" />
     <bitmap id="ble"              filename="drawables/ble.png" />
     <bitmap id="bpm"  			  filename="drawables/bpm.png" />
+    <bitmap id="bpm1"  			  filename="drawables/bpm1.png" />
+    <bitmap id="bpm2"  			  filename="drawables/bpm2.png" />
+    <bitmap id="bpm3"  			  filename="drawables/bpm3.png" />
+    <bitmap id="bpm4"  			  filename="drawables/bpm4.png" />
+    <bitmap id="bpm5"  			  filename="drawables/bpm5.png" />
     <bitmap id="burned" 	      filename="drawables/burned.png" />
     <bitmap id="steps"    		  filename="drawables/steps.png" />    
 

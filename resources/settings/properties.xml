@@ -6,5 +6,7 @@
     <property id="Age"    type="number">46</property>
     
     <property id="LcdBackground" type="boolean">false</property>
+    
+    <property id="BpmZones" type="boolean">true</property>
 
 </properties>
