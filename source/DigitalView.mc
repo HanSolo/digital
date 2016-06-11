@@ -18,7 +18,7 @@ class DigitalView extends Ui.WatchFace {
     var weekdays = new [7];
     var timeFont, dateFont, valueFont, distanceFont;
     var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon;
-    var batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;
+    var alarmIcon, batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;
     var heartRate;    
 
     function initialize() {
@@ -31,6 +31,7 @@ class DigitalView extends Ui.WatchFace {
         dateFont      = Ui.loadResource(Rez.Fonts.digitalUpright26);
         valueFont     = Ui.loadResource(Rez.Fonts.digitalUpright24);
         distanceFont  = Ui.loadResource(Rez.Fonts.digitalUpright16);
+        alarmIcon     = Ui.loadResource(Rez.Drawables.alarm);
         batteryIcon   = Ui.loadResource(Rez.Drawables.battery);
         bleIcon       = Ui.loadResource(Rez.Drawables.ble);
         bpmIcon       = Ui.loadResource(Rez.Drawables.bpm);
@@ -86,6 +87,7 @@ class DigitalView extends Ui.WatchFace {
         var connected            = Sys.getDeviceSettings().phoneConnected;        
         var profile              = UserProfile.getProfile();
         var notificationCount    = Sys.getDeviceSettings().notificationCount;
+        var alarmCount           = Sys.getDeviceSettings().alarmCount;
         var gender;
         var userWeight;
         var userHeight;
@@ -164,7 +166,10 @@ class DigitalView extends Ui.WatchFace {
         dc.fillRectangle(97, 6 , 20.0 * charge / 100, 7);
 
         // BLE
-        if (connected) { dc.drawBitmap(139, 2, bleIcon); }
+        if (connected) { dc.drawBitmap(137, 2, bleIcon); }
+        
+        // Alarm
+        if (alarmCount > 0) { dc.drawBitmap(156, 3, alarmIcon); }
        
        // Steps
         dc.drawBitmap(18, 127, stepsIcon);
@@ -178,9 +183,9 @@ class DigitalView extends Ui.WatchFace {
 
         // BPM
         if (showBpmZones) {
-            dc.drawBitmap(39, 158, bpmZoneIcons[currentZone - 1]);            
+            dc.drawBitmap(40, 158, bpmZoneIcons[currentZone - 1]);            
         } else {
-            dc.drawBitmap(39, 158, bpmIcon);
+            dc.drawBitmap(40, 158, bpmIcon);
         }        
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);        
         dc.drawText(102, 155, valueFont, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);

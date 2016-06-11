@@ -2,6 +2,7 @@
     <string id="AppName">Digital</string>
 
     <bitmap id="LauncherIcon"     filename="drawables/launcher_icon.png" />
+    <bitmap id="alarm"            filename="drawables/alarm.png" />
     <bitmap id="battery"          filename="drawables/battery.png" />
     <bitmap id="ble"              filename="drawables/ble.png" />
     <bitmap id="bpm"  			  filename="drawables/bpm.png" />
