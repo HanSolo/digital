@@ -3,22 +3,21 @@ using Toybox.Graphics as Gfx;
 using Toybox.System as Sys;
 using Toybox.Lang as Lang;
 using Toybox.Math as Math;
-using Toybox.Sensor as Sens;
 using Toybox.ActivityMonitor as Act;
 using Toybox.Attention as Att;
-using Toybox.Math as Math;
 using Toybox.Time as Time;
 using Toybox.Time.Gregorian as Greg;
 using Toybox.Application as App;
 using Toybox.UserProfile as UserProfile;
 
+
 class DigitalView extends Ui.WatchFace {
     enum { WOMAN, MEN }
     const STEP_COLORS = [ Gfx.COLOR_RED, Gfx.COLOR_ORANGE, Gfx.COLOR_YELLOW, Gfx.COLOR_DK_GREEN, Gfx.COLOR_GREEN ];
     var weekdays = new [7];
-    var timeFont, dateFont, valueFont, distanceFont;
+    var timeFont, dateFont, valueFont, distanceFont, sunFont;
     var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon;
-    var alarmIcon, batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;
+    var alarmIcon, batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;    
     var heartRate;    
 
     function initialize() {
@@ -42,14 +41,14 @@ class DigitalView extends Ui.WatchFace {
         bpm5Icon      = Ui.loadResource(Rez.Drawables.bpm5);
         burnedIcon    = Ui.loadResource(Rez.Drawables.burned);
         mailIcon      = Ui.loadResource(Rez.Drawables.mail);
-        stepsIcon     = Ui.loadResource(Rez.Drawables.steps);      
+        stepsIcon     = Ui.loadResource(Rez.Drawables.steps);        
         weekdays[0]   = Ui.loadResource(Rez.Strings.Sun);
         weekdays[1]   = Ui.loadResource(Rez.Strings.Mon);
         weekdays[2]   = Ui.loadResource(Rez.Strings.Tue);
         weekdays[3]   = Ui.loadResource(Rez.Strings.Wed);
         weekdays[4]   = Ui.loadResource(Rez.Strings.Thu);
         weekdays[5]   = Ui.loadResource(Rez.Strings.Fri);
-        weekdays[6]   = Ui.loadResource(Rez.Strings.Sat);        
+        weekdays[6]   = Ui.loadResource(Rez.Strings.Sat); 
     }
 
     //! Called when this View is brought to the foreground. Restore
@@ -83,11 +82,11 @@ class DigitalView extends Ui.WatchFace {
         var bpm                  = (hr.heartRate != Act.INVALID_HR_SAMPLE && hr.heartRate > 0) ? hr.heartRate : 0;
         var charge               = systemStats.battery;
         var dayOfWeek            = nowinfo.day_of_week;
-        var lcdBackgroundVisible = Application.getApp().getProperty("LcdBackground"); 
+        var lcdBackgroundVisible = Application.getApp().getProperty("LcdBackground");         
         var connected            = Sys.getDeviceSettings().phoneConnected;        
         var profile              = UserProfile.getProfile();
         var notificationCount    = Sys.getDeviceSettings().notificationCount;
-        var alarmCount           = Sys.getDeviceSettings().alarmCount;
+        var alarmCount           = Sys.getDeviceSettings().alarmCount;        
         var gender;
         var userWeight;
         var userHeight;
@@ -131,7 +130,7 @@ class DigitalView extends Ui.WatchFace {
             currentZone = 1;
         }
 
-            
+
         // Draw Background
         dc.setPenWidth(1);     
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
@@ -155,8 +154,7 @@ class DigitalView extends Ui.WatchFace {
         
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
         dc.fillRectangle(106, 121, 3, 59);
-            
-        
+                    
         // Notification
         if (notificationCount > 0) { dc.drawBitmap(58, 4, mailIcon); }    
             
@@ -182,18 +180,14 @@ class DigitalView extends Ui.WatchFace {
         dc.drawText(179, 124, valueFont, kcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);        
 
         // BPM
-        if (showBpmZones) {
-            dc.drawBitmap(40, 158, bpmZoneIcons[currentZone - 1]);            
-        } else {
-            dc.drawBitmap(40, 158, bpmIcon);
-        }        
+        dc.drawBitmap(40, 158, showBpmZones ? bpmZoneIcons[currentZone - 1] : bpmIcon);
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);        
         dc.drawText(102, 155, valueFont, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);
 
         // Distance
         dc.drawText(156, 155, valueFont, distance.format("%0.1f"), Gfx.TEXT_JUSTIFY_RIGHT);
         dc.drawText(172, 162, distanceFont, "km", Gfx.TEXT_JUSTIFY_RIGHT);
-
+        
         // Step Bar background
         dc.setPenWidth(8);           
         dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);

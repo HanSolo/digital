@@ -6,7 +6,7 @@
         </iq:products>
 
         <iq:permissions>
-            <iq:uses-permission id="Steps"/>
+            <iq:uses-permission id="Steps"/>            
             <iq:uses-permission id="UserProfile"/>
         </iq:permissions>
 

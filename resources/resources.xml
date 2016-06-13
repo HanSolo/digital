@@ -13,7 +13,7 @@
     <bitmap id="bpm5"  			  filename="drawables/bpm5.png" />
     <bitmap id="burned" 	      filename="drawables/burned.png" />
     <bitmap id="mail"    	      filename="drawables/mail.png" />
-    <bitmap id="steps"    		  filename="drawables/steps.png" />    
+    <bitmap id="steps"    		  filename="drawables/steps.png" />
 
     <fonts>
         <font id="digitalUpright66" filename="fonts/DigitalUprightThick_66.fnt" filter="0123456789: "/>
