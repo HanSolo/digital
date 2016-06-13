@@ -86,12 +86,17 @@ class DigitalView extends Ui.WatchFace {
         var connected            = Sys.getDeviceSettings().phoneConnected;        
         var profile              = UserProfile.getProfile();
         var notificationCount    = Sys.getDeviceSettings().notificationCount;
-        var alarmCount           = Sys.getDeviceSettings().alarmCount;        
+        var alarmCount           = Sys.getDeviceSettings().alarmCount;
+        var dst                  = Application.getApp().getProperty("DST");    
+        var timezoneOffset       = clockTime.timeZoneOffset;
+        var showHomeTimezone     = Application.getApp().getProperty("ShowHomeTimezone");
+        var homeTimezoneOffset   = dst ? Application.getApp().getProperty("HomeTimezoneOffset") + 3600 : Application.getApp().getProperty("HomeTimezoneOffset");
+        var onTravel             = timezoneOffset != homeTimezoneOffset;    
         var gender;
         var userWeight;
         var userHeight;
         var userAge;
-                
+
         if (profile == null) {
             gender     = Application.getApp().getProperty("Gender");
             userWeight = Application.getApp().getProperty("Weight");
@@ -102,7 +107,7 @@ class DigitalView extends Ui.WatchFace {
             userWeight = profile.weight / 1000d;
             userHeight = profile.height;
             userAge    = nowinfo.year - profile.birthYear;            
-        }        
+        }
                         
         // Mifflin-St.Jeor Formula (1990)
         var goalMen      = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) + 5;
@@ -187,7 +192,7 @@ class DigitalView extends Ui.WatchFace {
         // Distance
         dc.drawText(156, 155, valueFont, distance.format("%0.1f"), Gfx.TEXT_JUSTIFY_RIGHT);
         dc.drawText(172, 162, distanceFont, "km", Gfx.TEXT_JUSTIFY_RIGHT);
-        
+                
         // Step Bar background
         dc.setPenWidth(8);           
         dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
@@ -244,9 +249,19 @@ class DigitalView extends Ui.WatchFace {
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
         dc.drawText(centerX, 23, timeFont, Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
     
-        // Date
+        // Date and home timezone
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);        
-        dc.drawText(centerX, 89, dateFont, Lang.format(weekdays[dayOfWeek -1] + "$1$.$2$", [nowinfo.day.format("%02d"), nowinfo.month.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+        if (onTravel && showHomeTimezone) {
+            dc.drawText(25, 89, dateFont, Lang.format(weekdays[dayOfWeek -1] + "$1$.$2$", [nowinfo.day.format("%02d"), nowinfo.month.format("%02d")]), Gfx.TEXT_JUSTIFY_LEFT);          
+            var currentSeconds = clockTime.hour * 3600 + clockTime.min * 60 + clockTime.sec;
+            var utcSeconds     = currentSeconds - clockTime.timeZoneOffset - (dst ? 3600 : 0); //
+            var homeSeconds    = utcSeconds + homeTimezoneOffset;
+            var homeHour       = ((homeSeconds / 3600)).toNumber() % 24l;
+            var homeMinute     = ((homeSeconds - (homeHour.abs() * 3600)) / 60) % 60;           
+            dc.drawText(190, 89, dateFont, Lang.format("$1$:$2$", [homeHour.format("%02d"), homeMinute.format("%02d")]), Gfx.TEXT_JUSTIFY_RIGHT);
+        } else {
+            dc.drawText(centerX, 89, dateFont, Lang.format(weekdays[dayOfWeek -1] + "$1$.$2$", [nowinfo.day.format("%02d"), nowinfo.month.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+        }
     }
 
 
@@ -260,4 +275,8 @@ class DigitalView extends Ui.WatchFace {
 
     //! Terminate any active timers and prepare for slow updates.
     function onEnterSleep() {}
+    
+    function onSettingsChanged() {
+        Sys.println("Settings changed");
+    }
 }

@@ -9,4 +9,10 @@
     
     <property id="BpmZones" type="boolean">true</property>
     
+    <property id="DST" type="boolean">true</property>
+    
+    <property id="ShowHomeTimezone" type="boolean">false</property>
+    
+    <property id="HomeTimezoneOffset" type="number">3600</property>
+    
 </properties>
