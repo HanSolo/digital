@@ -254,8 +254,9 @@ class DigitalView extends Ui.WatchFace {
         if (onTravel && showHomeTimezone) {
             dc.drawText(25, 89, dateFont, Lang.format(weekdays[dayOfWeek -1] + "$1$.$2$", [nowinfo.day.format("%02d"), nowinfo.month.format("%02d")]), Gfx.TEXT_JUSTIFY_LEFT);          
             var currentSeconds = clockTime.hour * 3600 + clockTime.min * 60 + clockTime.sec;
-            var utcSeconds     = currentSeconds - clockTime.timeZoneOffset - (dst ? 3600 : 0); //
+            var utcSeconds     = currentSeconds - clockTime.timeZoneOffset;// - (dst ? 3600 : 0);
             var homeSeconds    = utcSeconds + homeTimezoneOffset;
+            if (dst) { homeSeconds = homeTimezoneOffset > 0 ? homeSeconds : homeSeconds - 3600; }
             var homeHour       = ((homeSeconds / 3600)).toNumber() % 24l;
             var homeMinute     = ((homeSeconds - (homeHour.abs() * 3600)) / 60) % 60;           
             dc.drawText(190, 89, dateFont, Lang.format("$1$:$2$", [homeHour.format("%02d"), homeMinute.format("%02d")]), Gfx.TEXT_JUSTIFY_RIGHT);
@@ -277,6 +278,6 @@ class DigitalView extends Ui.WatchFace {
     function onEnterSleep() {}
     
     function onSettingsChanged() {
-        Sys.println("Settings changed");
+        //Sys.println("Settings changed");
     }
 }
