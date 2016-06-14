@@ -78,4 +78,12 @@
             <listEntry value="50400">@Strings.UTC_P_1400</listEntry>
         </settingConfig>
     </setting>
+    
+    <setting propertyKey="@Properties.DistanceUnit" title="@Strings.DistanceUnit">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.Kilometer</listEntry>
+            <listEntry value="1">@Strings.Miles</listEntry>
+        </settingConfig>
+    </setting>        
+    
 </settings>

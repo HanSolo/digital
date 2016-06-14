@@ -72,12 +72,12 @@ class DigitalView extends Ui.WatchFace {
         var nowinfo              = Greg.info(Time.now(), Time.FORMAT_SHORT);
         var actinfo              = Act.getInfo();
         var systemStats          = Sys.getSystemStats();
+        var is24Hour             = Sys.getDeviceSettings().is24Hour;
         var hrIter               = Act.getHeartRateHistory(null, true);
         var hr                   = hrIter.next();
         var steps                = actinfo.steps;
         var stepGoal             = actinfo.stepGoal;
-        var stepsReached         = steps.toDouble() / stepGoal;
-        var distance             = actinfo.distance * 0.00001;
+        var stepsReached         = steps.toDouble() / stepGoal;        
         var kcal                 = actinfo.calories;
         var bpm                  = (hr.heartRate != Act.INVALID_HR_SAMPLE && hr.heartRate > 0) ? hr.heartRate : 0;
         var charge               = systemStats.battery;
@@ -91,7 +91,9 @@ class DigitalView extends Ui.WatchFace {
         var timezoneOffset       = clockTime.timeZoneOffset;
         var showHomeTimezone     = Application.getApp().getProperty("ShowHomeTimezone");
         var homeTimezoneOffset   = dst ? Application.getApp().getProperty("HomeTimezoneOffset") + 3600 : Application.getApp().getProperty("HomeTimezoneOffset");
-        var onTravel             = timezoneOffset != homeTimezoneOffset;    
+        var onTravel             = timezoneOffset != homeTimezoneOffset;        
+        var distanceUnit         = Application.getApp().getProperty("DistanceUnit"); // 0 -> Kilometer, 1 -> Miles
+        var distance             = distanceUnit == 0 ? actinfo.distance * 0.00001 : actinfo.distance * 0.00001 * 0.621371;
         var gender;
         var userWeight;
         var userHeight;
@@ -134,8 +136,8 @@ class DigitalView extends Ui.WatchFace {
         } else {
             currentZone = 1;
         }
-
-
+                        
+                        
         // Draw Background
         dc.setPenWidth(1);     
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
@@ -190,8 +192,8 @@ class DigitalView extends Ui.WatchFace {
         dc.drawText(102, 155, valueFont, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);
 
         // Distance
-        dc.drawText(156, 155, valueFont, distance.format("%0.1f"), Gfx.TEXT_JUSTIFY_RIGHT);
-        dc.drawText(172, 162, distanceFont, "km", Gfx.TEXT_JUSTIFY_RIGHT);
+        dc.drawText(156, 155, valueFont, distance > 99.99 ? distance.format("%0.0f") : distance.format("%0.1f"), Gfx.TEXT_JUSTIFY_RIGHT);
+        dc.drawText(172, 162, distanceFont, distanceUnit == 0 ? "km" : "mi", Gfx.TEXT_JUSTIFY_RIGHT);
                 
         // Step Bar background
         dc.setPenWidth(8);           
@@ -244,10 +246,25 @@ class DigitalView extends Ui.WatchFace {
         // Time        
         if (lcdBackgroundVisible) {
             dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
-            dc.drawText(centerX, 23, timeFont, "88:88", Gfx.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, 23, timeFont, "88:88", Gfx.TEXT_JUSTIFY_CENTER);            
         }
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-        dc.drawText(centerX, 23, timeFont, Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+        if (is24Hour) {
+            dc.drawText(centerX, 23, timeFont, Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+        } else {
+            var hour = clockTime.hour;
+            var amPm = "am";
+            if (hour > 12) {
+                hour = clockTime.hour - 12;
+                amPm = "pm";
+            } else if (hour == 0) {
+                hour = 12;              
+            } else if (hour == 12) {                
+                amPm = "pm";
+            }
+            dc.drawText(centerX, 23, timeFont, Lang.format("$1$:$2$", [hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+            dc.drawText(178, 63, distanceFont, amPm, Gfx.TEXT_JUSTIFY_LEFT);
+        }        
     
         // Date and home timezone
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);        
