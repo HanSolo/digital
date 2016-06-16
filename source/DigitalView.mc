@@ -13,8 +13,8 @@ using Toybox.UserProfile as UserProfile;
 
 class DigitalView extends Ui.WatchFace {
     enum { WOMAN, MEN }
-    const STEP_COLORS = [ Gfx.COLOR_RED, Gfx.COLOR_ORANGE, Gfx.COLOR_YELLOW, Gfx.COLOR_DK_GREEN, Gfx.COLOR_GREEN ];
-    var weekdays = new [7];
+    const STEP_COLORS = [ Gfx.COLOR_DK_RED, Gfx.COLOR_RED, Gfx.COLOR_ORANGE, Gfx.COLOR_ORANGE, Gfx.COLOR_YELLOW, Gfx.COLOR_YELLOW, Gfx.COLOR_DK_GREEN, Gfx.COLOR_DK_GREEN, Gfx.COLOR_GREEN, Gfx.COLOR_GREEN ];
+    var weekdays      = new [7];
     var timeFont, dateFont, valueFont, distanceFont, sunFont;
     var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon;
     var alarmIcon, batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;    
@@ -204,13 +204,14 @@ class DigitalView extends Ui.WatchFace {
         }
         
         // Step Goal Bar
-        stepsReached = stepsReached > 1.0 ? 1.0 : stepsReached;        
-        dc.setColor(STEP_COLORS[(stepsReached * 4.0).toNumber()], Gfx.COLOR_TRANSPARENT);
+        stepsReached      = stepsReached > 1.0 ? 1.0 : stepsReached;                
+        var endIndex      = (10.0 * stepsReached).toNumber();        
         var stopAngleLeft = (190.0 - 59.0 * stepsReached).toNumber();
-        stopAngleLeft = stopAngleLeft < 136.0 ? 136.0 : stopAngleLeft;
-        for(var i = 10; i >= 0 ; i--) {
-            var startAngleLeft = 190 - (i * 6);
-            if (startAngleLeft >= stopAngleLeft && steps > 0) { dc.drawArc(centerX, centerY, 105, 0, startAngleLeft, startAngleLeft + 5); }
+        stopAngleLeft     = stopAngleLeft < 136.0 ? 136.0 : stopAngleLeft;        
+        dc.setColor(endIndex > 0 ? STEP_COLORS[endIndex - 1] : Gfx.COLOR_TRANSPARENT, Gfx.COLOR_TRANSPARENT);
+        for(var i = 0; i < endIndex ; i++) {            
+            var startAngleLeft  = 190 - (i * 6);            
+            dc.drawArc(centerX, centerY, 105, 0, startAngleLeft, startAngleLeft + 5);
         }
 
         // KCal Goal Bar Background        
