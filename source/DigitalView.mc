@@ -238,7 +238,7 @@ class DigitalView extends Ui.WatchFace {
             dc.setColor(Gfx.COLOR_GREEN, Gfx.COLOR_TRANSPARENT);
             kcalReached -= 1.0;
         } else {
-            dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
+            dc.setColor(Gfx.COLOR_DK_BLUE, Gfx.COLOR_TRANSPARENT);
         }
         var stopAngleRight = (-15.0 + 59.0 * kcalReached).toNumber();
         stopAngleRight = stopAngleRight > 59.0 ? 59.0 : stopAngleRight;
