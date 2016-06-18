@@ -215,10 +215,12 @@ class DigitalView extends Ui.WatchFace {
         }
 
         // KCal Goal Bar Background        
-        if (kcalReached > 2.0) {
-            dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
+        if (kcalReached > 3.0) {
+            dc.setColor(Gfx.COLOR_PINK, Gfx.COLOR_TRANSPARENT);
+        } else if (kcalReached > 2.0) {
+            dc.setColor(Gfx.COLOR_GREEN, Gfx.COLOR_TRANSPARENT);
         } else if (kcalReached > 1.0) {
-            dc.setColor(Gfx.COLOR_BLUE, Gfx.COLOR_TRANSPARENT);
+            dc.setColor(Gfx.COLOR_DK_BLUE, Gfx.COLOR_TRANSPARENT);
         } else {
             dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
         }
