@@ -74,5 +74,7 @@
 	<string id="DistanceUnit">Distance Unit</string>
 	<string id="Kilometer">Kilometer</string>
 	<string id="Miles">Miles</string>
+	
+	<string id="ShowMoveBar">Show MoveBar</string>
 
 </strings>

@@ -13,11 +13,12 @@ using Toybox.UserProfile as UserProfile;
 
 class DigitalView extends Ui.WatchFace {
     enum { WOMAN, MEN }
-    const STEP_COLORS = [ Gfx.COLOR_DK_RED, Gfx.COLOR_RED, Gfx.COLOR_ORANGE, Gfx.COLOR_ORANGE, Gfx.COLOR_YELLOW, Gfx.COLOR_YELLOW, Gfx.COLOR_DK_GREEN, Gfx.COLOR_DK_GREEN, Gfx.COLOR_GREEN, Gfx.COLOR_GREEN ];
-    var weekdays      = new [7];
+    const STEP_COLORS  = [ Gfx.COLOR_DK_RED, Gfx.COLOR_RED, Gfx.COLOR_ORANGE, Gfx.COLOR_ORANGE, Gfx.COLOR_YELLOW, Gfx.COLOR_YELLOW, Gfx.COLOR_DK_GREEN, Gfx.COLOR_DK_GREEN, Gfx.COLOR_GREEN, Gfx.COLOR_GREEN ];
+    const LEVEL_COLORS = [ Gfx.COLOR_GREEN, Gfx.COLOR_DK_GREEN, Gfx.COLOR_YELLOW, Gfx.COLOR_ORANGE, Gfx.COLOR_RED ];
+    var weekdays       = new [7];
     var timeFont, dateFont, valueFont, distanceFont, sunFont;
     var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon;
-    var alarmIcon, batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;    
+    var alarmIcon, alertIcon, batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;    
     var heartRate;    
 
     function initialize() {
@@ -31,6 +32,7 @@ class DigitalView extends Ui.WatchFace {
         valueFont     = Ui.loadResource(Rez.Fonts.digitalUpright24);
         distanceFont  = Ui.loadResource(Rez.Fonts.digitalUpright16);
         alarmIcon     = Ui.loadResource(Rez.Drawables.alarm);
+        alertIcon     = Ui.loadResource(Rez.Drawables.alert);
         batteryIcon   = Ui.loadResource(Rez.Drawables.battery);
         bleIcon       = Ui.loadResource(Rez.Drawables.ble);
         bpmIcon       = Ui.loadResource(Rez.Drawables.bpm);
@@ -94,6 +96,8 @@ class DigitalView extends Ui.WatchFace {
         var onTravel             = timezoneOffset != homeTimezoneOffset;        
         var distanceUnit         = Application.getApp().getProperty("DistanceUnit"); // 0 -> Kilometer, 1 -> Miles
         var distance             = distanceUnit == 0 ? actinfo.distance * 0.00001 : actinfo.distance * 0.00001 * 0.621371;
+        var showMoveBar          = Application.getApp().getProperty("ShowMoveBar");
+        var moveBarLevel         = actinfo.moveBarLevel;
         var gender;
         var userWeight;
         var userHeight;
@@ -249,6 +253,16 @@ class DigitalView extends Ui.WatchFace {
             if (startAngleRight < stopAngleRight) { dc.drawArc(centerX, centerY, 105, 0, startAngleRight, startAngleRight + 5); }
         }
 
+        // Move Bar
+        if (showMoveBar) {
+            dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
+            for (var i = 0 ; i < 5 ; i++) { dc.fillRectangle(41 + (i * 27), 116, 25, 4); }
+            if (moveBarLevel > Act.MOVE_BAR_LEVEL_MIN) { dc.setColor(LEVEL_COLORS[moveBarLevel - 1], Gfx.COLOR_TRANSPARENT); }
+            for (var i = 0 ; i < moveBarLevel ; i++) { dc.fillRectangle(41 + (i * 27), 116, 25, 4); }
+            if (moveBarLevel == 5) { dc.drawBitmap(177, 112, alertIcon); }
+        }
+        
+
         // Time        
         if (lcdBackgroundVisible) {
             dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
@@ -273,20 +287,44 @@ class DigitalView extends Ui.WatchFace {
         }        
     
         // Date and home timezone
-        dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);        
+        dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+        var dateYPosition = showMoveBar ? 86 : 89;
         if (onTravel && showHomeTimezone) {
-            dc.drawText(25, 89, dateFont, Lang.format(weekdays[dayOfWeek -1] + "$1$.$2$", [nowinfo.day.format("%02d"), nowinfo.month.format("%02d")]), Gfx.TEXT_JUSTIFY_LEFT);          
+            var homeDayOfWeek  = dayOfWeek - 1;
+            var homeDay        = nowinfo.day;
+            var homeMonth      = nowinfo.month;
             var currentSeconds = clockTime.hour * 3600 + clockTime.min * 60 + clockTime.sec;
             var utcSeconds     = currentSeconds - clockTime.timeZoneOffset;// - (dst ? 3600 : 0);
             var homeSeconds    = utcSeconds + homeTimezoneOffset;
             if (dst) { homeSeconds = homeTimezoneOffset > 0 ? homeSeconds : homeSeconds - 3600; }
             var homeHour       = ((homeSeconds / 3600)).toNumber() % 24l;
-            var homeMinute     = ((homeSeconds - (homeHour.abs() * 3600)) / 60) % 60;           
-            dc.drawText(190, 89, dateFont, Lang.format("$1$:$2$", [homeHour.format("%02d"), homeMinute.format("%02d")]), Gfx.TEXT_JUSTIFY_RIGHT);
+            var homeMinute     = ((homeSeconds - (homeHour.abs() * 3600)) / 60) % 60;
+            if (homeHour < 0) {
+                homeHour += 24;
+                homeDay--;
+                if (homeDay == 0) {
+                    homeMonth--;
+                    if (homeMonth == 0) { homeMonth = 12; }
+                    homeDay = daysOfMonth(homeMonth);
+                }
+                homeDayOfWeek--;
+                if (homeDayOfWeek < 0) { homeDayOfWeek = 6; }
+            }
+            if (homeMinute < 0) { homeMinute += 60; }
+                        
+            dc.drawText(25, dateYPosition, dateFont, Lang.format(weekdays[homeDayOfWeek] + "$1$.$2$", [homeDay.format("%02d"), homeMonth.format("%02d")]), Gfx.TEXT_JUSTIFY_LEFT);
+            dc.drawText(190, dateYPosition, dateFont, Lang.format("$1$:$2$", [homeHour.format("%02d"), homeMinute.format("%02d")]), Gfx.TEXT_JUSTIFY_RIGHT);            
         } else {
-            dc.drawText(centerX, 89, dateFont, Lang.format(weekdays[dayOfWeek -1] + "$1$.$2$", [nowinfo.day.format("%02d"), nowinfo.month.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, dateYPosition, dateFont, Lang.format(weekdays[dayOfWeek -1] + "$1$.$2$", [nowinfo.day.format("%02d"), nowinfo.month.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
         }
     }
+
+    function floor(x) {
+        if(x > 0) { return x.toNumber(); }
+        return (x - 0.9999999999999999).toNumber();
+    }
+
+    function daysOfMonth(month) { return 28 + (month + floor(month / 8)) % 2 + 2 % month + 2 * floor(1 / month); }
 
 
     //! Called when this View is removed from the screen. Save the

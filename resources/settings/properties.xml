@@ -17,4 +17,6 @@
     
     <property id="DistanceUnit" type="number">0</property>
     
+    <property id="ShowMoveBar" type="boolean">true</property>
+    
 </properties>

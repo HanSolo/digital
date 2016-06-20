@@ -84,6 +84,10 @@
             <listEntry value="0">@Strings.Kilometer</listEntry>
             <listEntry value="1">@Strings.Miles</listEntry>
         </settingConfig>
-    </setting>        
+    </setting>
+    
+    <setting propertyKey="@Properties.ShowMoveBar" title="@Strings.ShowMoveBar">
+        <settingConfig type="boolean" />
+    </setting>       
     
 </settings>

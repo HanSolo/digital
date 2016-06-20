@@ -75,4 +75,6 @@
 	<string id="Kilometer">Kilometer</string>
 	<string id="Miles">Meilen</string>
 	
+	<string id="ShowMoveBar">MoveBar anzeigen</string>
+	
 </strings>
