@@ -95,7 +95,8 @@ class DigitalView extends Ui.WatchFace {
         var homeTimezoneOffset   = dst ? Application.getApp().getProperty("HomeTimezoneOffset") + 3600 : Application.getApp().getProperty("HomeTimezoneOffset");
         var onTravel             = timezoneOffset != homeTimezoneOffset;        
         var distanceUnit         = Application.getApp().getProperty("DistanceUnit"); // 0 -> Kilometer, 1 -> Miles
-        var distance             = distanceUnit == 0 ? actinfo.distance * 0.00001 : actinfo.distance * 0.00001 * 0.621371;
+        var distance             = distanceUnit == 0 ? actinfo.distance * 0.00001 : actinfo.distance * 0.00001 * 0.621371;        
+        var dateFormat           = Application.getApp().getProperty("DateFormat") == 0 ? "$1$.$2$" : "$2$/$1$";
         var showMoveBar          = Application.getApp().getProperty("ShowMoveBar");
         var moveBarLevel         = actinfo.moveBarLevel;
         var gender;
@@ -312,10 +313,10 @@ class DigitalView extends Ui.WatchFace {
             }
             if (homeMinute < 0) { homeMinute += 60; }
                         
-            dc.drawText(25, dateYPosition, dateFont, Lang.format(weekdays[homeDayOfWeek] + "$1$.$2$", [homeDay.format("%02d"), homeMonth.format("%02d")]), Gfx.TEXT_JUSTIFY_LEFT);
+            dc.drawText(25, dateYPosition, dateFont, Lang.format(weekdays[homeDayOfWeek] + dateFormat, [homeDay.format("%02d"), homeMonth.format("%02d")]), Gfx.TEXT_JUSTIFY_LEFT);
             dc.drawText(190, dateYPosition, dateFont, Lang.format("$1$:$2$", [homeHour.format("%02d"), homeMinute.format("%02d")]), Gfx.TEXT_JUSTIFY_RIGHT);            
         } else {
-            dc.drawText(centerX, dateYPosition, dateFont, Lang.format(weekdays[dayOfWeek -1] + "$1$.$2$", [nowinfo.day.format("%02d"), nowinfo.month.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, dateYPosition, dateFont, Lang.format(weekdays[dayOfWeek -1] + dateFormat, [nowinfo.day.format("%02d"), nowinfo.month.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
         }
     }
 

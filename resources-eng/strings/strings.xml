@@ -75,6 +75,10 @@
 	<string id="Kilometer">Kilometer</string>
 	<string id="Miles">Miles</string>
 	
+	<string id="DateFormat">Date format</string>
+	<string id="DayMonth">Day.Month</string>
+	<string id="MonthDay">Month/Day</string>
+	
 	<string id="ShowMoveBar">Show MoveBar</string>
 
 </strings>
