@@ -17,6 +17,7 @@ class DigitalView extends Ui.WatchFace {
     const LEVEL_COLORS = [ Gfx.COLOR_GREEN, Gfx.COLOR_DK_GREEN, Gfx.COLOR_YELLOW, Gfx.COLOR_ORANGE, Gfx.COLOR_RED ];
     var weekdays       = new [7];
     var timeFont, dateFont, valueFont, distanceFont, sunFont;
+    var chargeFont;
     var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon;
     var alarmIcon, alertIcon, batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;    
     var heartRate;    
@@ -31,6 +32,7 @@ class DigitalView extends Ui.WatchFace {
         dateFont      = Ui.loadResource(Rez.Fonts.digitalUpright26);
         valueFont     = Ui.loadResource(Rez.Fonts.digitalUpright24);
         distanceFont  = Ui.loadResource(Rez.Fonts.digitalUpright16);
+        chargeFont    = Ui.loadResource(Rez.Fonts.droidSansMono12);        
         alarmIcon     = Ui.loadResource(Rez.Drawables.alarm);
         alertIcon     = Ui.loadResource(Rez.Drawables.alert);
         batteryIcon   = Ui.loadResource(Rez.Drawables.battery);
@@ -63,42 +65,44 @@ class DigitalView extends Ui.WatchFace {
     function onUpdate(dc) {
         View.onUpdate(dc);
         
-        var bpmZoneIcons         = [ bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon ];
+        var bpmZoneIcons          = [ bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon ];
 
         // General
-        var width                = dc.getWidth();
-        var height               = dc.getHeight();
-        var centerX              = width * 0.5;
-        var centerY              = height * 0.5;
-        var clockTime            = Sys.getClockTime();
-        var nowinfo              = Greg.info(Time.now(), Time.FORMAT_SHORT);
-        var actinfo              = Act.getInfo();
-        var systemStats          = Sys.getSystemStats();
-        var is24Hour             = Sys.getDeviceSettings().is24Hour;
-        var hrIter               = Act.getHeartRateHistory(null, true);
-        var hr                   = hrIter.next();
-        var steps                = actinfo.steps;
-        var stepGoal             = actinfo.stepGoal;
-        var stepsReached         = steps.toDouble() / stepGoal;        
-        var kcal                 = actinfo.calories;
-        var bpm                  = (hr.heartRate != Act.INVALID_HR_SAMPLE && hr.heartRate > 0) ? hr.heartRate : 0;
-        var charge               = systemStats.battery;
-        var dayOfWeek            = nowinfo.day_of_week;
-        var lcdBackgroundVisible = Application.getApp().getProperty("LcdBackground");         
-        var connected            = Sys.getDeviceSettings().phoneConnected;        
-        var profile              = UserProfile.getProfile();
-        var notificationCount    = Sys.getDeviceSettings().notificationCount;
-        var alarmCount           = Sys.getDeviceSettings().alarmCount;
-        var dst                  = Application.getApp().getProperty("DST");    
-        var timezoneOffset       = clockTime.timeZoneOffset;
-        var showHomeTimezone     = Application.getApp().getProperty("ShowHomeTimezone");
-        var homeTimezoneOffset   = dst ? Application.getApp().getProperty("HomeTimezoneOffset") + 3600 : Application.getApp().getProperty("HomeTimezoneOffset");
-        var onTravel             = timezoneOffset != homeTimezoneOffset;        
-        var distanceUnit         = Application.getApp().getProperty("DistanceUnit"); // 0 -> Kilometer, 1 -> Miles
-        var distance             = distanceUnit == 0 ? actinfo.distance * 0.00001 : actinfo.distance * 0.00001 * 0.621371;        
-        var dateFormat           = Application.getApp().getProperty("DateFormat") == 0 ? "$1$.$2$" : "$2$/$1$";
-        var showMoveBar          = Application.getApp().getProperty("ShowMoveBar");
-        var moveBarLevel         = actinfo.moveBarLevel;
+        var width                 = dc.getWidth();
+        var height                = dc.getHeight();
+        var centerX               = width * 0.5;
+        var centerY               = height * 0.5;
+        var clockTime             = Sys.getClockTime();
+        var nowinfo               = Greg.info(Time.now(), Time.FORMAT_SHORT);
+        var actinfo               = Act.getInfo();
+        var systemStats           = Sys.getSystemStats();
+        var is24Hour              = Sys.getDeviceSettings().is24Hour;
+        var hrIter                = Act.getHeartRateHistory(null, true);
+        var hr                    = hrIter.next();
+        var steps                 = actinfo.steps;
+        var stepGoal              = actinfo.stepGoal;
+        var stepsReached          = steps.toDouble() / stepGoal;        
+        var kcal                  = actinfo.calories;
+        var bpm                   = (hr.heartRate != Act.INVALID_HR_SAMPLE && hr.heartRate > 0) ? hr.heartRate : 0;
+        var charge                = systemStats.battery;
+        var showChargePercentage  = Application.getApp().getProperty("ShowChargePercentage");
+        var showPercentageUnder20 = Application.getApp().getProperty("ShowPercentageUnder20");
+        var dayOfWeek             = nowinfo.day_of_week;
+        var lcdBackgroundVisible  = Application.getApp().getProperty("LcdBackground");         
+        var connected             = Sys.getDeviceSettings().phoneConnected;        
+        var profile               = UserProfile.getProfile();
+        var notificationCount     = Sys.getDeviceSettings().notificationCount;
+        var alarmCount            = Sys.getDeviceSettings().alarmCount;
+        var dst                   = Application.getApp().getProperty("DST");    
+        var timezoneOffset        = clockTime.timeZoneOffset;
+        var showHomeTimezone      = Application.getApp().getProperty("ShowHomeTimezone");
+        var homeTimezoneOffset    = dst ? Application.getApp().getProperty("HomeTimezoneOffset") + 3600 : Application.getApp().getProperty("HomeTimezoneOffset");
+        var onTravel              = timezoneOffset != homeTimezoneOffset;        
+        var distanceUnit          = Application.getApp().getProperty("DistanceUnit"); // 0 -> Kilometer, 1 -> Miles
+        var distance              = distanceUnit == 0 ? actinfo.distance * 0.00001 : actinfo.distance * 0.00001 * 0.621371;        
+        var dateFormat            = Application.getApp().getProperty("DateFormat") == 0 ? "$1$.$2$" : "$2$/$1$";
+        var showMoveBar           = Application.getApp().getProperty("ShowMoveBar");
+        var moveBarLevel          = actinfo.moveBarLevel;
         var gender;
         var userWeight;
         var userHeight;
@@ -171,9 +175,20 @@ class DigitalView extends Ui.WatchFace {
         if (notificationCount > 0) { dc.drawBitmap(58, 4, mailIcon); }    
             
         // Battery
-        dc.drawBitmap(95, 4, batteryIcon);
+        dc.drawBitmap(93, 4, batteryIcon);
         dc.setColor(charge < 20 ? Gfx.COLOR_RED : Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-        dc.fillRectangle(97, 6 , 20.0 * charge / 100, 7);
+        dc.fillRectangle(95, 6 , 24.0 * charge / 100, 7);
+        if (showChargePercentage) {
+            if (showPercentageUnder20) {
+                if (charge.toNumber() <= 20) {
+                    dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+                    dc.drawText(107, 11, chargeFont, charge.toNumber() + "%", Gfx.TEXT_JUSTIFY_CENTER);
+                }
+            } else {
+                dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
+                dc.drawText(107, 11, chargeFont, charge.toNumber() + "%", Gfx.TEXT_JUSTIFY_CENTER);
+            }            
+        }
 
         // BLE
         if (connected) { dc.drawBitmap(137, 2, bleIcon); }
@@ -267,11 +282,11 @@ class DigitalView extends Ui.WatchFace {
         // Time        
         if (lcdBackgroundVisible) {
             dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
-            dc.drawText(centerX, 23, timeFont, "88:88", Gfx.TEXT_JUSTIFY_CENTER);            
+            dc.drawText(centerX, 25, timeFont, "88:88", Gfx.TEXT_JUSTIFY_CENTER);            
         }
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
         if (is24Hour) {
-            dc.drawText(centerX, 23, timeFont, Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, 25, timeFont, Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
         } else {
             var hour = clockTime.hour;
             var amPm = "am";
@@ -283,8 +298,8 @@ class DigitalView extends Ui.WatchFace {
             } else if (hour == 12) {                
                 amPm = "pm";
             }
-            dc.drawText(centerX, 23, timeFont, Lang.format("$1$:$2$", [hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
-            dc.drawText(178, 63, distanceFont, amPm, Gfx.TEXT_JUSTIFY_LEFT);
+            dc.drawText(centerX, 25, timeFont, Lang.format("$1$:$2$", [hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+            dc.drawText(178, 65, distanceFont, amPm, Gfx.TEXT_JUSTIFY_LEFT);
         }        
     
         // Date and home timezone

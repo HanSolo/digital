@@ -81,4 +81,7 @@
 	
 	<string id="ShowMoveBar">Show MoveBar</string>
 	
+	<string id="ShowChargePercentage">Show charge in %</string>
+	<string id="ShowPercentageUnder20">Show % only below 20%</string>
+	
 </strings>

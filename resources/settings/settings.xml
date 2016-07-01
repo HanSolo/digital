@@ -95,6 +95,13 @@
     
     <setting propertyKey="@Properties.ShowMoveBar" title="@Strings.ShowMoveBar">
         <settingConfig type="boolean" />
-    </setting>       
+    </setting>
     
+    <setting propertyKey="@Properties.ShowChargePercentage" title="@Strings.ShowChargePercentage">
+        <settingConfig type="boolean" />
+    </setting>
+    
+    <setting propertyKey="@Properties.ShowPercentageUnder20" title="@Strings.ShowPercentageUnder20">
+        <settingConfig type="boolean" />
+    </setting>
 </settings>

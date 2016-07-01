@@ -81,4 +81,7 @@
 	
 	<string id="ShowMoveBar">MoveBar anzeigen</string>
 	
+	<string id="ShowChargePercentage">Batterieladung in % anzeigen</string>
+	<string id="ShowPercentageUnder20">% nur unter 20% anzeigen</string>
+	
 </strings>
