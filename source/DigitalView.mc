@@ -128,12 +128,12 @@ class DigitalView extends Ui.WatchFace {
         }
                         
         // Mifflin-St.Jeor Formula (1990)
-        var goalMen       = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) + 5;   // base kcal men
-        var goalWoman     = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) - 161; // base kcal woman
-        var kcalGoal      = gender == MEN ? goalMen : goalWoman;                             // base kcal related to gender
-        var kcalPerMinute = kcalGoal / 1440;                                                 // base kcal per minute
-        var activeKcal    = kcal - (kcalPerMinute * (clockTime.hour * 60 + clockTime.min));  // active kcal
-        var kcalReached   = kcal / kcalGoal;                                                 // kcal reached 
+        var goalMen       = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) + 5;                // base kcal men
+        var goalWoman     = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) - 161;              // base kcal woman
+        var kcalGoal      = gender == MEN ? goalMen : goalWoman;                                          // base kcal related to gender
+        var kcalPerMinute = kcalGoal / 1440;                                                              // base kcal per minute        
+        var activeKcal    = (kcal - (kcalPerMinute * (clockTime.hour * 60 + clockTime.min))).toNumber();  // active kcal
+        var kcalReached   = kcal / kcalGoal;                                                              // kcal reached 
         
         var showBpmZones  = Application.getApp().getProperty("BpmZones");
         var maxBpm        = gender == 1 ? (223 - 0.9 * userAge).toNumber() : (226 - 1.0 * userAge).toNumber();        
