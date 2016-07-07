@@ -84,4 +84,5 @@
 	<string id="ShowChargePercentage">Show charge in %</string>
 	<string id="ShowPercentageUnder20">Show % only below 20%</string>
 	
+	<string id="ShowActiveKcalOnly">Show active calories only</string>
 </strings>

@@ -104,4 +104,8 @@
     <setting propertyKey="@Properties.ShowPercentageUnder20" title="@Strings.ShowPercentageUnder20">
         <settingConfig type="boolean" />
     </setting>
+    
+    <setting propertyKey="@Properties.ShowActiveKcalOnly" title="@Strings.ShowActiveKcalOnly">
+        <settingConfig type="boolean" />
+    </setting>
 </settings>

@@ -23,4 +23,6 @@
     
     <property id="ShowChargePercentage" type="boolean">false</property>
     <property id="ShowPercentageUnder20" type="boolean">true</property>
+    
+    <property id="ShowActiveKcalOnly" type="boolean">false</property>
 </properties>

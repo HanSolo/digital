@@ -9,6 +9,7 @@ using Toybox.Time as Time;
 using Toybox.Time.Gregorian as Greg;
 using Toybox.Application as App;
 using Toybox.UserProfile as UserProfile;
+using Toybox.Ant as Ant;
 
 
 class DigitalView extends Ui.WatchFace {
@@ -70,11 +71,15 @@ class DigitalView extends Ui.WatchFace {
         // General
         var width                 = dc.getWidth();
         var height                = dc.getHeight();
+        var isFenix3Hr            = Sys.getDeviceSettings().screenShape == Sys.SCREEN_SHAPE_ROUND && width == 218 && height == 218;
+        var offsetX               = isFenix3Hr ?  2 : 0;
+        var offsetY               = isFenix3Hr ? 19 : 0;
         var centerX               = width * 0.5;
         var centerY               = height * 0.5;
         var clockTime             = Sys.getClockTime();
+        var midnightInfo          = Greg.info(Time.today(), Time.FORMAT_SHORT);
         var nowinfo               = Greg.info(Time.now(), Time.FORMAT_SHORT);
-        var actinfo               = Act.getInfo();
+        var actinfo               = Act.getInfo();        
         var systemStats           = Sys.getSystemStats();
         var is24Hour              = Sys.getDeviceSettings().is24Hour;
         var hrIter                = Act.getHeartRateHistory(null, true);
@@ -83,6 +88,7 @@ class DigitalView extends Ui.WatchFace {
         var stepGoal              = actinfo.stepGoal;
         var stepsReached          = steps.toDouble() / stepGoal;        
         var kcal                  = actinfo.calories;
+        var showActiveKcalOnly    = Application.getApp().getProperty("ShowActiveKcalOnly");
         var bpm                   = (hr.heartRate != Act.INVALID_HR_SAMPLE && hr.heartRate > 0) ? hr.heartRate : 0;
         var charge                = systemStats.battery;
         var showChargePercentage  = Application.getApp().getProperty("ShowChargePercentage");
@@ -108,6 +114,7 @@ class DigitalView extends Ui.WatchFace {
         var userHeight;
         var userAge;
 
+
         if (profile == null) {
             gender     = Application.getApp().getProperty("Gender");
             userWeight = Application.getApp().getProperty("Weight");
@@ -121,18 +128,20 @@ class DigitalView extends Ui.WatchFace {
         }
                         
         // Mifflin-St.Jeor Formula (1990)
-        var goalMen      = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) + 5;
-        var goalWoman    = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) - 161;                
-        var kcalGoal     = gender == MEN ? goalMen : goalWoman;
-        var kcalReached  = kcal / kcalGoal;
-                
-        var showBpmZones = Application.getApp().getProperty("BpmZones");
-        var maxBpm       = gender == 1 ? (223 - 0.9 * userAge).toNumber() : (226 - 1.0 * userAge).toNumber();        
-        var bpmZone1     = (0.5 * maxBpm).toNumber();
-        var bpmZone2     = (0.6 * maxBpm).toNumber();
-        var bpmZone3     = (0.7 * maxBpm).toNumber();
-        var bpmZone4     = (0.8 * maxBpm).toNumber();
-        var bpmZone5     = (0.9 * maxBpm).toNumber();
+        var goalMen       = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) + 5;   // base kcal men
+        var goalWoman     = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) - 161; // base kcal woman
+        var kcalGoal      = gender == MEN ? goalMen : goalWoman;                             // base kcal related to gender
+        var kcalPerMinute = kcalGoal / 1440;                                                 // base kcal per minute
+        var activeKcal    = kcal - (kcalPerMinute * (clockTime.hour * 60 + clockTime.min));  // active kcal
+        var kcalReached   = kcal / kcalGoal;                                                 // kcal reached 
+        
+        var showBpmZones  = Application.getApp().getProperty("BpmZones");
+        var maxBpm        = gender == 1 ? (223 - 0.9 * userAge).toNumber() : (226 - 1.0 * userAge).toNumber();        
+        var bpmZone1      = (0.5 * maxBpm).toNumber();
+        var bpmZone2      = (0.6 * maxBpm).toNumber();
+        var bpmZone3      = (0.7 * maxBpm).toNumber();
+        var bpmZone4      = (0.8 * maxBpm).toNumber();
+        var bpmZone5      = (0.9 * maxBpm).toNumber();
         var currentZone;
         if (bpm >= bpmZone5) {
             currentZone = 5;
@@ -145,75 +154,78 @@ class DigitalView extends Ui.WatchFace {
         } else {
             currentZone = 1;
         }
-                        
-                        
+
         // Draw Background
         dc.setPenWidth(1);     
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-        dc.fillRectangle(0, 0, width, 121);
+        dc.fillRectangle(offsetX, offsetY, width, 121);
         
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);    
-        dc.fillRectangle(0, 121, width, 59);
+        dc.fillRectangle(offsetX, 121 + offsetY, width, 59);
             
         dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
-        dc.drawLine(0, 121, width, 121);
+        dc.drawLine(offsetX, 121 + offsetY, width, 121 + offsetY);
         dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
-        dc.drawLine(0, 122, width, 122);
+        dc.drawLine(offsetX, 122 + offsetY, width, 122 + offsetY);
 
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-        dc.fillRectangle(0, 149, width, 3);
+        dc.fillRectangle(offsetX, 149 + offsetY, width, 3);
         
         dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
-        dc.drawLine(0, 152, width, 152);
+        dc.drawLine(offsetX, 152 + offsetY, width, 152 + offsetY);
         dc.setColor(Gfx.COLOR_LT_GRAY, Gfx.COLOR_TRANSPARENT);
-        dc.drawLine(0, 153, width, 153);
+        dc.drawLine(offsetX, 153 + offsetY, width, 153 + offsetY);
         
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-        dc.fillRectangle(106, 121, 3, 59);
+        dc.fillRectangle(106 + offsetX, 121 + offsetY, 3, 59);
                     
         // Notification
-        if (notificationCount > 0) { dc.drawBitmap(58, 4, mailIcon); }    
+        if (notificationCount > 0) { dc.drawBitmap(58 + offsetX, 4 + offsetY, mailIcon); }    
             
         // Battery
-        dc.drawBitmap(93, 4, batteryIcon);
+        dc.drawBitmap(93 + offsetX, 4 + offsetY, batteryIcon);
         dc.setColor(charge < 20 ? Gfx.COLOR_RED : Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-        dc.fillRectangle(95, 6 , 24.0 * charge / 100, 7);
+        dc.fillRectangle(95 + offsetX, 6 + offsetY , 24.0 * charge / 100, 7);
         if (showChargePercentage) {
             if (showPercentageUnder20) {
                 if (charge.toNumber() <= 20) {
                     dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-                    dc.drawText(107, 11, chargeFont, charge.toNumber() + "%", Gfx.TEXT_JUSTIFY_CENTER);
+                    dc.drawText(107 + offsetX, 11 + offsetY, chargeFont, charge.toNumber() + "%", Gfx.TEXT_JUSTIFY_CENTER);
                 }
             } else {
                 dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-                dc.drawText(107, 11, chargeFont, charge.toNumber() + "%", Gfx.TEXT_JUSTIFY_CENTER);
+                dc.drawText(107 + offsetX, 11 + offsetY, chargeFont, charge.toNumber() + "%", Gfx.TEXT_JUSTIFY_CENTER);
             }            
         }
 
         // BLE
-        if (connected) { dc.drawBitmap(137, 2, bleIcon); }
+        if (connected) { dc.drawBitmap(137 + offsetX, 2 + offsetY, bleIcon); }
         
         // Alarm
-        if (alarmCount > 0) { dc.drawBitmap(156, 3, alarmIcon); }
+        if (alarmCount > 0) { dc.drawBitmap(156 + offsetX, 3 + offsetY, alarmIcon); }
        
        // Steps
-        dc.drawBitmap(18, 127, stepsIcon);
+        dc.drawBitmap(18 + offsetX, 127 + offsetY, stepsIcon);
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-        dc.drawText(102, 124, valueFont, steps, Gfx.TEXT_JUSTIFY_RIGHT);
+        dc.drawText(102 + offsetX, 124 + offsetY, valueFont, steps, Gfx.TEXT_JUSTIFY_RIGHT);
             
         // KCal
-        dc.drawBitmap(183, 127, burnedIcon);
+        dc.drawBitmap(183 + offsetX, 127 + offsetY, burnedIcon);
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-        dc.drawText(179, 124, valueFont, kcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);        
+        if (showActiveKcalOnly) {            
+            dc.drawText(179 + offsetX, 124 + offsetY, valueFont, activeKcal < 0 ? 0 : activeKcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);
+        } else {
+            dc.drawText(179 + offsetX, 124 + offsetY, valueFont, kcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);
+        }        
 
         // BPM
-        dc.drawBitmap(40, 158, showBpmZones ? bpmZoneIcons[currentZone - 1] : bpmIcon);
+        dc.drawBitmap(40 + offsetX, 158 + offsetY, showBpmZones ? bpmZoneIcons[currentZone - 1] : bpmIcon);
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);        
-        dc.drawText(102, 155, valueFont, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);
+        dc.drawText(102 + offsetX, 155 + offsetY, valueFont, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);
 
         // Distance
-        dc.drawText(156, 155, valueFont, distance > 99.99 ? distance.format("%0.0f") : distance.format("%0.1f"), Gfx.TEXT_JUSTIFY_RIGHT);
-        dc.drawText(172, 162, distanceFont, distanceUnit == 0 ? "km" : "mi", Gfx.TEXT_JUSTIFY_RIGHT);
+        dc.drawText(156+ offsetX, 155 + offsetY, valueFont, distance > 99.99 ? distance.format("%0.0f") : distance.format("%0.1f"), Gfx.TEXT_JUSTIFY_RIGHT);
+        dc.drawText(172 + offsetX, 162 + offsetY, distanceFont, distanceUnit == 0 ? "km" : "mi", Gfx.TEXT_JUSTIFY_RIGHT);
                 
         // Step Bar background
         dc.setPenWidth(8);           
@@ -272,21 +284,21 @@ class DigitalView extends Ui.WatchFace {
         // Move Bar
         if (showMoveBar) {
             dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
-            for (var i = 0 ; i < 5 ; i++) { dc.fillRectangle(41 + (i * 27), 116, 25, 4); }
+            for (var i = 0 ; i < 5 ; i++) { dc.fillRectangle(41 + (i * 27) + offsetX, 116 + offsetY, 25, 4); }
             if (moveBarLevel > Act.MOVE_BAR_LEVEL_MIN) { dc.setColor(LEVEL_COLORS[moveBarLevel - 1], Gfx.COLOR_TRANSPARENT); }
-            for (var i = 0 ; i < moveBarLevel ; i++) { dc.fillRectangle(41 + (i * 27), 116, 25, 4); }
-            if (moveBarLevel == 5) { dc.drawBitmap(177, 112, alertIcon); }
+            for (var i = 0 ; i < moveBarLevel ; i++) { dc.fillRectangle(41 + (i * 27) + offsetX, 116 + offsetY, 25, 4); }
+            if (moveBarLevel == 5) { dc.drawBitmap(177 + offsetX, 112 + offsetY, alertIcon); }
         }
         
 
         // Time        
         if (lcdBackgroundVisible) {
             dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
-            dc.drawText(centerX, 25, timeFont, "88:88", Gfx.TEXT_JUSTIFY_CENTER);            
+            dc.drawText(centerX, 25 + offsetY, timeFont, "88:88", Gfx.TEXT_JUSTIFY_CENTER);            
         }
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
         if (is24Hour) {
-            dc.drawText(centerX, 25, timeFont, Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, 25 + offsetY, timeFont, Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
         } else {
             var hour = clockTime.hour;
             var amPm = "am";
@@ -298,8 +310,8 @@ class DigitalView extends Ui.WatchFace {
             } else if (hour == 12) {                
                 amPm = "pm";
             }
-            dc.drawText(centerX, 25, timeFont, Lang.format("$1$:$2$", [hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
-            dc.drawText(178, 65, distanceFont, amPm, Gfx.TEXT_JUSTIFY_LEFT);
+            dc.drawText(centerX, 25 + offsetY, timeFont, Lang.format("$1$:$2$", [hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+            dc.drawText(178 + offsetX, 65 + offsetY, distanceFont, amPm, Gfx.TEXT_JUSTIFY_LEFT);
         }        
     
         // Date and home timezone
@@ -328,10 +340,10 @@ class DigitalView extends Ui.WatchFace {
             }
             if (homeMinute < 0) { homeMinute += 60; }
                         
-            dc.drawText(25, dateYPosition, dateFont, Lang.format(weekdays[homeDayOfWeek] + dateFormat, [homeDay.format("%02d"), homeMonth.format("%02d")]), Gfx.TEXT_JUSTIFY_LEFT);
-            dc.drawText(190, dateYPosition, dateFont, Lang.format("$1$:$2$", [homeHour.format("%02d"), homeMinute.format("%02d")]), Gfx.TEXT_JUSTIFY_RIGHT);            
+            dc.drawText(25 + offsetX, dateYPosition + offsetY, dateFont, Lang.format(weekdays[homeDayOfWeek] + dateFormat, [homeDay.format("%02d"), homeMonth.format("%02d")]), Gfx.TEXT_JUSTIFY_LEFT);
+            dc.drawText(190 + offsetX, dateYPosition + offsetY, dateFont, Lang.format("$1$:$2$", [homeHour.format("%02d"), homeMinute.format("%02d")]), Gfx.TEXT_JUSTIFY_RIGHT);            
         } else {
-            dc.drawText(centerX, dateYPosition, dateFont, Lang.format(weekdays[dayOfWeek -1] + dateFormat, [nowinfo.day.format("%02d"), nowinfo.month.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, dateYPosition + offsetY, dateFont, Lang.format(weekdays[dayOfWeek -1] + dateFormat, [nowinfo.day.format("%02d"), nowinfo.month.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
         }
     }
 

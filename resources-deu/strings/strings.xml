@@ -84,4 +84,6 @@
 	<string id="ShowChargePercentage">Batterieladung in % anzeigen</string>
 	<string id="ShowPercentageUnder20">% nur unter 20% anzeigen</string>
 	
+	<string id="ShowActiveKcalOnly">Nur Aktiv-Kalorien anzeigen</string>
+	
 </strings>
