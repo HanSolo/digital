@@ -85,4 +85,6 @@
 	<string id="ShowPercentageUnder20">Show % only below 20%</string>
 	
 	<string id="ShowActiveKcalOnly">Show active calories only</string>
+	
+	<string id="ShowLeadingZero">Show leading zeroes</string>
 </strings>

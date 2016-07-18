@@ -25,4 +25,6 @@
     <property id="ShowPercentageUnder20" type="boolean">true</property>
     
     <property id="ShowActiveKcalOnly" type="boolean">false</property>
+    
+    <property id="ShowLeadingZero" type="boolean">true</property>
 </properties>

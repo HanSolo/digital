@@ -86,4 +86,5 @@
 	
 	<string id="ShowActiveKcalOnly">Nur Aktiv-Kalorien anzeigen</string>
 	
+	<string id="ShowLeadingZero">Führende Nullen anzeigen</string>
 </strings>

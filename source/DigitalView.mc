@@ -108,6 +108,7 @@ class DigitalView extends Ui.WatchFace {
         var distance              = distanceUnit == 0 ? actinfo.distance * 0.00001 : actinfo.distance * 0.00001 * 0.621371;        
         var dateFormat            = Application.getApp().getProperty("DateFormat") == 0 ? "$1$.$2$" : "$2$/$1$";
         var showMoveBar           = Application.getApp().getProperty("ShowMoveBar");
+        var showLeadingZero       = Application.getApp().getProperty("ShowLeadingZero");
         var moveBarLevel          = actinfo.moveBarLevel;
         var gender;
         var userWeight;
@@ -294,11 +295,27 @@ class DigitalView extends Ui.WatchFace {
         // Time        
         if (lcdBackgroundVisible) {
             dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
-            dc.drawText(centerX, 25 + offsetY, timeFont, "88:88", Gfx.TEXT_JUSTIFY_CENTER);            
+            if (showLeadingZero) {
+                dc.drawText(centerX, 25 + offsetY, timeFont, "88:88", Gfx.TEXT_JUSTIFY_CENTER);
+            } else {
+                if (is24Hour) {
+                    if (clockTime.hour < 10) {
+                        dc.drawText(centerX, 25 + offsetY, timeFont, "8:88", Gfx.TEXT_JUSTIFY_CENTER);
+                    } else {
+                        dc.drawText(centerX, 25 + offsetY, timeFont, "88:88", Gfx.TEXT_JUSTIFY_CENTER);
+                    }
+                } else {
+                    if (clockTime.hour < 10 || clockTime.hour > 12) {
+                        dc.drawText(centerX, 25 + offsetY, timeFont, "8:88", Gfx.TEXT_JUSTIFY_CENTER);
+                    } else {
+                        dc.drawText(centerX, 25 + offsetY, timeFont, "88:88", Gfx.TEXT_JUSTIFY_CENTER);
+                    }
+                }
+            }            
         }
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
         if (is24Hour) {
-            dc.drawText(centerX, 25 + offsetY, timeFont, Lang.format("$1$:$2$", [clockTime.hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, 25 + offsetY, timeFont, Lang.format("$1$:$2$", [clockTime.hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
         } else {
             var hour = clockTime.hour;
             var amPm = "am";
@@ -309,8 +326,8 @@ class DigitalView extends Ui.WatchFace {
                 hour = 12;              
             } else if (hour == 12) {                
                 amPm = "pm";
-            }
-            dc.drawText(centerX, 25 + offsetY, timeFont, Lang.format("$1$:$2$", [hour.format("%02d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+            }            
+            dc.drawText(centerX, 25 + offsetY, timeFont, Lang.format("$1$:$2$", [hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
             dc.drawText(178 + offsetX, 65 + offsetY, distanceFont, amPm, Gfx.TEXT_JUSTIFY_LEFT);
         }        
     
@@ -340,10 +357,10 @@ class DigitalView extends Ui.WatchFace {
             }
             if (homeMinute < 0) { homeMinute += 60; }
                         
-            dc.drawText(25 + offsetX, dateYPosition + offsetY, dateFont, Lang.format(weekdays[homeDayOfWeek] + dateFormat, [homeDay.format("%02d"), homeMonth.format("%02d")]), Gfx.TEXT_JUSTIFY_LEFT);
-            dc.drawText(190 + offsetX, dateYPosition + offsetY, dateFont, Lang.format("$1$:$2$", [homeHour.format("%02d"), homeMinute.format("%02d")]), Gfx.TEXT_JUSTIFY_RIGHT);            
+            dc.drawText(25 + offsetX, dateYPosition + offsetY, dateFont, Lang.format(weekdays[homeDayOfWeek] + dateFormat, [homeDay.format(showLeadingZero ? "%02d" : "%01d"), homeMonth.format(showLeadingZero ? "%02d" : "%01d")]), Gfx.TEXT_JUSTIFY_LEFT);
+            dc.drawText(190 + offsetX, dateYPosition + offsetY, dateFont, Lang.format("$1$:$2$", [homeHour.format(showLeadingZero ? "%02d" : "%01d"), homeMinute.format("%02d")]), Gfx.TEXT_JUSTIFY_RIGHT);            
         } else {
-            dc.drawText(centerX, dateYPosition + offsetY, dateFont, Lang.format(weekdays[dayOfWeek -1] + dateFormat, [nowinfo.day.format("%02d"), nowinfo.month.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+            dc.drawText(centerX, dateYPosition + offsetY, dateFont, Lang.format(weekdays[dayOfWeek -1] + dateFormat, [nowinfo.day.format(showLeadingZero ? "%02d" : "%01d"), nowinfo.month.format(showLeadingZero ? "%02d" : "%01d")]), Gfx.TEXT_JUSTIFY_CENTER);
         }
     }
 
