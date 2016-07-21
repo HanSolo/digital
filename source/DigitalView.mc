@@ -19,7 +19,7 @@ class DigitalView extends Ui.WatchFace {
     var weekdays       = new [7];
     var timeFont, dateFont, valueFont, distanceFont, sunFont;
     var chargeFont;
-    var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon;
+    var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon, bpmMaxRedIcon, bpmMaxBlackIcon;
     var alarmIcon, alertIcon, batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;    
     var heartRate;    
 
@@ -29,31 +29,33 @@ class DigitalView extends Ui.WatchFace {
 
     //! Load your resources here
     function onLayout(dc) {        
-        timeFont      = Ui.loadResource(Rez.Fonts.digitalUpright66);
-        dateFont      = Ui.loadResource(Rez.Fonts.digitalUpright26);
-        valueFont     = Ui.loadResource(Rez.Fonts.digitalUpright24);
-        distanceFont  = Ui.loadResource(Rez.Fonts.digitalUpright16);
-        chargeFont    = Ui.loadResource(Rez.Fonts.droidSansMono12);        
-        alarmIcon     = Ui.loadResource(Rez.Drawables.alarm);
-        alertIcon     = Ui.loadResource(Rez.Drawables.alert);
-        batteryIcon   = Ui.loadResource(Rez.Drawables.battery);
-        bleIcon       = Ui.loadResource(Rez.Drawables.ble);
-        bpmIcon       = Ui.loadResource(Rez.Drawables.bpm);
-        bpm1Icon      = Ui.loadResource(Rez.Drawables.bpm1);
-        bpm2Icon      = Ui.loadResource(Rez.Drawables.bpm2);
-        bpm3Icon      = Ui.loadResource(Rez.Drawables.bpm3);
-        bpm4Icon      = Ui.loadResource(Rez.Drawables.bpm4);
-        bpm5Icon      = Ui.loadResource(Rez.Drawables.bpm5);
-        burnedIcon    = Ui.loadResource(Rez.Drawables.burned);
-        mailIcon      = Ui.loadResource(Rez.Drawables.mail);
-        stepsIcon     = Ui.loadResource(Rez.Drawables.steps);        
-        weekdays[0]   = Ui.loadResource(Rez.Strings.Sun);
-        weekdays[1]   = Ui.loadResource(Rez.Strings.Mon);
-        weekdays[2]   = Ui.loadResource(Rez.Strings.Tue);
-        weekdays[3]   = Ui.loadResource(Rez.Strings.Wed);
-        weekdays[4]   = Ui.loadResource(Rez.Strings.Thu);
-        weekdays[5]   = Ui.loadResource(Rez.Strings.Fri);
-        weekdays[6]   = Ui.loadResource(Rez.Strings.Sat); 
+        timeFont        = Ui.loadResource(Rez.Fonts.digitalUpright66);
+        dateFont        = Ui.loadResource(Rez.Fonts.digitalUpright26);
+        valueFont       = Ui.loadResource(Rez.Fonts.digitalUpright24);
+        distanceFont    = Ui.loadResource(Rez.Fonts.digitalUpright16);
+        chargeFont      = Ui.loadResource(Rez.Fonts.droidSansMono12);        
+        alarmIcon       = Ui.loadResource(Rez.Drawables.alarm);
+        alertIcon       = Ui.loadResource(Rez.Drawables.alert);
+        batteryIcon     = Ui.loadResource(Rez.Drawables.battery);
+        bleIcon         = Ui.loadResource(Rez.Drawables.ble);
+        bpmIcon         = Ui.loadResource(Rez.Drawables.bpm);
+        bpm1Icon        = Ui.loadResource(Rez.Drawables.bpm1);
+        bpm2Icon        = Ui.loadResource(Rez.Drawables.bpm2);
+        bpm3Icon        = Ui.loadResource(Rez.Drawables.bpm3);
+        bpm4Icon        = Ui.loadResource(Rez.Drawables.bpm4);
+        bpm5Icon        = Ui.loadResource(Rez.Drawables.bpm5);
+        bpmMaxRedIcon   = Ui.loadResource(Rez.Drawables.bpmMaxRed);
+        bpmMaxBlackIcon = Ui.loadResource(Rez.Drawables.bpmMaxBlack);
+        burnedIcon      = Ui.loadResource(Rez.Drawables.burned);
+        mailIcon        = Ui.loadResource(Rez.Drawables.mail);
+        stepsIcon       = Ui.loadResource(Rez.Drawables.steps);        
+        weekdays[0]     = Ui.loadResource(Rez.Strings.Sun);
+        weekdays[1]     = Ui.loadResource(Rez.Strings.Mon);
+        weekdays[2]     = Ui.loadResource(Rez.Strings.Tue);
+        weekdays[3]     = Ui.loadResource(Rez.Strings.Wed);
+        weekdays[4]     = Ui.loadResource(Rez.Strings.Thu);
+        weekdays[5]     = Ui.loadResource(Rez.Strings.Fri);
+        weekdays[6]     = Ui.loadResource(Rez.Strings.Sat); 
     }
 
     //! Called when this View is brought to the foreground. Restore
@@ -135,7 +137,7 @@ class DigitalView extends Ui.WatchFace {
         var kcalPerMinute = kcalGoal / 1440;                                                              // base kcal per minute        
         var activeKcal    = (kcal - (kcalPerMinute * (clockTime.hour * 60 + clockTime.min))).toNumber();  // active kcal
         var kcalReached   = kcal / kcalGoal;                                                              // kcal reached 
-        
+
         var showBpmZones  = Application.getApp().getProperty("BpmZones");
         var maxBpm        = gender == 1 ? (223 - 0.9 * userAge).toNumber() : (226 - 1.0 * userAge).toNumber();        
         var bpmZone1      = (0.5 * maxBpm).toNumber();
@@ -219,8 +221,12 @@ class DigitalView extends Ui.WatchFace {
             dc.drawText(179 + offsetX, 124 + offsetY, valueFont, kcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);
         }        
 
-        // BPM
-        dc.drawBitmap(40 + offsetX, 158 + offsetY, showBpmZones ? bpmZoneIcons[currentZone - 1] : bpmIcon);
+        // BPM        
+        if (bpm >= maxBpm) {
+            dc.drawBitmap(40 + offsetX, 158 + offsetY, showBpmZones ? bpmMaxRedIcon : bpmMaxBlackIcon);
+        } else {
+            dc.drawBitmap(40 + offsetX, 158 + offsetY, showBpmZones ? bpmZoneIcons[currentZone - 1] : bpmIcon);
+        }        
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);        
         dc.drawText(102 + offsetX, 155 + offsetY, valueFont, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);
 
