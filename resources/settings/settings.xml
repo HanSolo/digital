@@ -112,4 +112,8 @@
     <setting propertyKey="@Properties.ShowLeadingZero" title="@Strings.ShowLeadingZero">
         <settingConfig type="boolean" />
     </setting>
+    
+    <setting propertyKey="@Properties.LcdFont" title="@Strings.LcdFont">
+        <settingConfig type="boolean" />
+    </setting>    
 </settings>

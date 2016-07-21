@@ -87,4 +87,6 @@
 	<string id="ShowActiveKcalOnly">Nur Aktiv-Kalorien anzeigen</string>
 	
 	<string id="ShowLeadingZero">Führende Nullen anzeigen</string>
+	
+	<string id="LcdFont">LCD Schriftart</string>
 </strings>

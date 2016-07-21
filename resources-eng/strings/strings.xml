@@ -87,4 +87,6 @@
 	<string id="ShowActiveKcalOnly">Show active calories only</string>
 	
 	<string id="ShowLeadingZero">Show leading zeroes</string>
+	
+	<string id="LcdFont">Lcd font</string>
 </strings>

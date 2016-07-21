@@ -27,4 +27,6 @@
     <property id="ShowActiveKcalOnly" type="boolean">false</property>
     
     <property id="ShowLeadingZero" type="boolean">true</property>
+    
+    <property id="LcdFont" type="boolean">true</property>
 </properties>
