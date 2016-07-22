@@ -18,7 +18,7 @@ class DigitalView extends Ui.WatchFace {
     const LEVEL_COLORS = [ Gfx.COLOR_GREEN, Gfx.COLOR_DK_GREEN, Gfx.COLOR_YELLOW, Gfx.COLOR_ORANGE, Gfx.COLOR_RED ];
     var weekdays       = new [7];
     var timeFont, dateFont, valueFont, distanceFont, sunFont;
-    var timeFontAnalog, dateFontAnalog, valueFontAnalog, distanceFontAnalog;
+    var timeFontAnalog, valueFontAnalog, distanceFontAnalog;    
     var chargeFont;
     var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon, bpmMaxRedIcon, bpmMaxBlackIcon;
     var alarmIcon, alertIcon, batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;    
@@ -34,10 +34,9 @@ class DigitalView extends Ui.WatchFace {
         dateFont           = Ui.loadResource(Rez.Fonts.digitalUpright26);
         valueFont          = Ui.loadResource(Rez.Fonts.digitalUpright24);
         distanceFont       = Ui.loadResource(Rez.Fonts.digitalUpright16);
-        timeFontAnalog     = Ui.loadResource(Rez.Fonts.analog66);
-        dateFontAnalog     = Ui.loadResource(Rez.Fonts.analog26);
-        valueFontAnalog    = Ui.loadResource(Rez.Fonts.analog24);
-        distanceFontAnalog = Ui.loadResource(Rez.Fonts.analog16);
+        timeFontAnalog     = Ui.loadResource(Rez.Fonts.analog60);        
+        valueFontAnalog    = Ui.loadResource(Rez.Fonts.analog22);
+        distanceFontAnalog = Ui.loadResource(Rez.Fonts.analog14);
         chargeFont         = Ui.loadResource(Rez.Fonts.droidSansMono12);        
         alarmIcon          = Ui.loadResource(Rez.Drawables.alarm);
         alertIcon          = Ui.loadResource(Rez.Drawables.alert);
@@ -218,7 +217,7 @@ class DigitalView extends Ui.WatchFace {
         if (lcdFont) {
             dc.drawText(102 + offsetX, 124 + offsetY, valueFont, steps, Gfx.TEXT_JUSTIFY_RIGHT);
         } else {
-            dc.drawText(102 + offsetX, 121 + offsetY, valueFontAnalog, steps, Gfx.TEXT_JUSTIFY_RIGHT);
+            dc.drawText(102 + offsetX, 119 + offsetY, valueFontAnalog, steps, Gfx.TEXT_JUSTIFY_RIGHT);
         }
             
         // KCal
@@ -228,13 +227,13 @@ class DigitalView extends Ui.WatchFace {
             if (lcdFont) {
                 dc.drawText(179 + offsetX, 124 + offsetY, valueFont, activeKcal < 0 ? 0 : activeKcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);
             } else {
-                dc.drawText(179 + offsetX, 121 + offsetY, valueFontAnalog, activeKcal < 0 ? 0 : activeKcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);
+                dc.drawText(179 + offsetX, 119 + offsetY, valueFontAnalog, activeKcal < 0 ? 0 : activeKcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);
             }
         } else {
             if (lcdFont) {
                 dc.drawText(179 + offsetX, 124 + offsetY, valueFont, kcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);
             } else {
-                dc.drawText(179 + offsetX, 121 + offsetY, valueFontAnalog, kcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);
+                dc.drawText(179 + offsetX, 119 + offsetY, valueFontAnalog, kcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);
             }
         }        
 
@@ -248,7 +247,7 @@ class DigitalView extends Ui.WatchFace {
         if (lcdFont) {
             dc.drawText(102 + offsetX, 155 + offsetY, valueFont, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);
         } else {
-            dc.drawText(102 + offsetX, 152 + offsetY, valueFontAnalog, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);
+            dc.drawText(102 + offsetX, 150 + offsetY, valueFontAnalog, (bpm > 0 ? bpm.toString() : ""), Gfx.TEXT_JUSTIFY_RIGHT);
         }
 
         // Distance
@@ -256,8 +255,8 @@ class DigitalView extends Ui.WatchFace {
             dc.drawText(156 + offsetX, 155 + offsetY, valueFont, distance > 99.99 ? distance.format("%0.0f") : distance.format("%0.1f"), Gfx.TEXT_JUSTIFY_RIGHT);
             dc.drawText(172 + offsetX, 162 + offsetY, distanceFont, distanceUnit == 0 ? "km" : "mi", Gfx.TEXT_JUSTIFY_RIGHT);
         } else {
-            dc.drawText(154 + offsetX, 152 + offsetY, valueFontAnalog, distance > 99.99 ? distance.format("%0.0f") : distance.format("%0.1f"), Gfx.TEXT_JUSTIFY_RIGHT);
-            dc.drawText(172 + offsetX, 159 + offsetY, distanceFontAnalog, distanceUnit == 0 ? "km" : "mi", Gfx.TEXT_JUSTIFY_RIGHT);
+            dc.drawText(156 + offsetX, 150 + offsetY, valueFontAnalog, distance > 99.99 ? distance.format("%0.0f") : distance.format("%0.1f"), Gfx.TEXT_JUSTIFY_RIGHT);
+            dc.drawText(174 + offsetX, 159 + offsetY, distanceFontAnalog, distanceUnit == 0 ? "km" : "mi", Gfx.TEXT_JUSTIFY_RIGHT);
         }
                 
         // Step Bar background
@@ -350,7 +349,7 @@ class DigitalView extends Ui.WatchFace {
             if (lcdFont) {
                 dc.drawText(centerX, 25 + offsetY, timeFont, Lang.format("$1$:$2$", [clockTime.hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
             } else {
-                dc.drawText(centerX, 18 + offsetY, timeFontAnalog, Lang.format("$1$:$2$", [clockTime.hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+                dc.drawText(centerX, 14 + offsetY, timeFontAnalog, Lang.format("$1$:$2$", [clockTime.hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
             }    
         } else {
             var hour = clockTime.hour;
@@ -367,15 +366,15 @@ class DigitalView extends Ui.WatchFace {
                 dc.drawText(centerX, 25 + offsetY, timeFont, Lang.format("$1$:$2$", [hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
                 dc.drawText(178 + offsetX, 65 + offsetY, distanceFont, amPm, Gfx.TEXT_JUSTIFY_LEFT);
             } else {
-                dc.drawText(centerX, 18 + offsetY, timeFontAnalog, Lang.format("$1$:$2$", [hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
-                dc.drawText(178 + offsetX, 63 + offsetY, distanceFontAnalog, amPm, Gfx.TEXT_JUSTIFY_LEFT);
+                dc.drawText(centerX, 14 + offsetY, timeFontAnalog, Lang.format("$1$:$2$", [hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
+                dc.drawText(178 + offsetX, 62 + offsetY, distanceFontAnalog, amPm, Gfx.TEXT_JUSTIFY_LEFT);
             }    
         }        
     
         // Date and home timezone
         dc.setColor(Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
         var dateYPosition = showMoveBar ? 86 : 89;
-        dateYPosition = lcdFont ? dateYPosition : dateYPosition - 3;
+        dateYPosition = lcdFont ? dateYPosition : dateYPosition - 6;
         if (onTravel && showHomeTimezone) {
             var homeDayOfWeek  = dayOfWeek - 1;
             var homeDay        = nowinfo.day;
@@ -403,14 +402,14 @@ class DigitalView extends Ui.WatchFace {
                 dc.drawText(25 + offsetX, dateYPosition + offsetY, dateFont, Lang.format(weekdays[homeDayOfWeek] + dateFormat, [homeDay.format(showLeadingZero ? "%02d" : "%01d"), homeMonth.format(showLeadingZero ? "%02d" : "%01d")]), Gfx.TEXT_JUSTIFY_LEFT);
                 dc.drawText(190 + offsetX, dateYPosition + offsetY, dateFont, Lang.format("$1$:$2$", [homeHour.format(showLeadingZero ? "%02d" : "%01d"), homeMinute.format("%02d")]), Gfx.TEXT_JUSTIFY_RIGHT);
             } else {
-                dc.drawText(25 + offsetX, dateYPosition + offsetY, dateFontAnalog, Lang.format(weekdays[homeDayOfWeek] + dateFormat, [homeDay.format(showLeadingZero ? "%02d" : "%01d"), homeMonth.format(showLeadingZero ? "%02d" : "%01d")]), Gfx.TEXT_JUSTIFY_LEFT);
-                dc.drawText(190 + offsetX, dateYPosition + offsetY, dateFontAnalog, Lang.format("$1$:$2$", [homeHour.format(showLeadingZero ? "%02d" : "%01d"), homeMinute.format("%02d")]), Gfx.TEXT_JUSTIFY_RIGHT);
+                dc.drawText(25 + offsetX, dateYPosition + offsetY, valueFontAnalog, Lang.format(weekdays[homeDayOfWeek] + dateFormat, [homeDay.format(showLeadingZero ? "%02d" : "%01d"), homeMonth.format(showLeadingZero ? "%02d" : "%01d")]), Gfx.TEXT_JUSTIFY_LEFT);
+                dc.drawText(190 + offsetX, dateYPosition + offsetY, valueFontAnalog, Lang.format("$1$:$2$", [homeHour.format(showLeadingZero ? "%02d" : "%01d"), homeMinute.format("%02d")]), Gfx.TEXT_JUSTIFY_RIGHT);
             }            
         } else {
             if (lcdFont) {
                 dc.drawText(centerX, dateYPosition + offsetY, dateFont, Lang.format(weekdays[dayOfWeek -1] + dateFormat, [nowinfo.day.format(showLeadingZero ? "%02d" : "%01d"), nowinfo.month.format(showLeadingZero ? "%02d" : "%01d")]), Gfx.TEXT_JUSTIFY_CENTER);
             } else {
-                dc.drawText(centerX, dateYPosition + offsetY, dateFontAnalog, Lang.format(weekdays[dayOfWeek -1] + dateFormat, [nowinfo.day.format(showLeadingZero ? "%02d" : "%01d"), nowinfo.month.format(showLeadingZero ? "%02d" : "%01d")]), Gfx.TEXT_JUSTIFY_CENTER);
+                dc.drawText(centerX, dateYPosition + offsetY, valueFontAnalog, Lang.format(weekdays[dayOfWeek -1] + dateFormat, [nowinfo.day.format(showLeadingZero ? "%02d" : "%01d"), nowinfo.month.format(showLeadingZero ? "%02d" : "%01d")]), Gfx.TEXT_JUSTIFY_CENTER);
             }
         }
     }
