@@ -93,9 +93,9 @@ class DigitalView extends Ui.WatchFace {
         var steps                 = actinfo.steps;
         var stepGoal              = actinfo.stepGoal;
         var stepsReached          = steps.toDouble() / stepGoal;        
-        var kcal                  = actinfo.calories;
+        var kcal                  = actinfo.calories;        
         var showActiveKcalOnly    = Application.getApp().getProperty("ShowActiveKcalOnly");
-        var bpm                   = (hr.heartRate != Act.INVALID_HR_SAMPLE && hr.heartRate > 0) ? hr.heartRate : 0;
+        var bpm                   = (hr.heartRate != Act.INVALID_HR_SAMPLE && hr.heartRate > 0) ? hr.heartRate : 0;        
         var charge                = systemStats.battery;
         var showChargePercentage  = Application.getApp().getProperty("ShowChargePercentage");
         var showPercentageUnder20 = Application.getApp().getProperty("ShowPercentageUnder20");
@@ -133,22 +133,26 @@ class DigitalView extends Ui.WatchFace {
             userHeight = profile.height;
             userAge    = nowinfo.year - profile.birthYear;            
         }
-                        
-        // Mifflin-St.Jeor Formula (1990)
-        var goalMen       = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) + 5;                // base kcal men
-        var goalWoman     = (10.0 * userWeight) + (6.25 * userHeight) - (5 * userAge) - 161;              // base kcal woman
-        var kcalGoal      = gender == MEN ? goalMen : goalWoman;                                          // base kcal related to gender
-        var kcalPerMinute = kcalGoal / 1440;                                                              // base kcal per minute        
-        var activeKcal    = (kcal - (kcalPerMinute * (clockTime.hour * 60 + clockTime.min))).toNumber();  // active kcal
-        var kcalReached   = kcal / kcalGoal;                                                              // kcal reached 
 
-        var showBpmZones  = Application.getApp().getProperty("BpmZones");
-        var maxBpm        = gender == 1 ? (223 - 0.9 * userAge).toNumber() : (226 - 1.0 * userAge).toNumber();        
+        // Mifflin-St.Jeor Formula (1990)
+        var baseKcalMen   = (9.99 * userWeight) + (6.25 * userHeight) - (4.92 * userAge) + 5.0;             // base kcal men
+        var baseKcalWoman = (9.99 * userWeight) + (6.25 * userHeight) - (4.92 * userAge) - 161.0;           // base kcal woman
+        var baseKcal      = gender == MEN ? baseKcalMen : baseKcalWoman;                                    // base kcal related to gender
+        var kcalPerMinute = baseKcal / 1440;                                                                // base kcal per minute
+        var activeKcal    = (kcal - (kcalPerMinute * (clockTime.hour * 60.0 + clockTime.min))).toNumber();  // active kcal
+        var kcalReached   = kcal / baseKcal;
+
+        // Heart Rate Zones
+        var showBpmZones  = Application.getApp().getProperty("BpmZones");        
+        var maxBpm        = (211.0 - 0.64 * userAge).toNumber(); // calculated after a study at NTNU (http://www.ntnu.edu/cerg/hrmax-info)
+        var restBpm       = profile.restingHeartRate;
+        var vo2Max        = (15.0 * maxBpm / restBpm).toNumber();        
         var bpmZone1      = (0.5 * maxBpm).toNumber();
         var bpmZone2      = (0.6 * maxBpm).toNumber();
         var bpmZone3      = (0.7 * maxBpm).toNumber();
         var bpmZone4      = (0.8 * maxBpm).toNumber();
         var bpmZone5      = (0.9 * maxBpm).toNumber();
+        
         var currentZone;
         if (bpm >= bpmZone5) {
             currentZone = 5;
@@ -418,7 +422,7 @@ class DigitalView extends Ui.WatchFace {
         if(x > 0) { return x.toNumber(); }
         return (x - 0.9999999999999999).toNumber();
     }
-
+    
     function daysOfMonth(month) { return 28 + (month + floor(month / 8)) % 2 + 2 % month + 2 * floor(1 / month); }
 
 
