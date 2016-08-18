@@ -99,7 +99,6 @@ class DigitalView extends Ui.WatchFace {
         var systemStats           = Sys.getSystemStats();
         var is24Hour              = Sys.getDeviceSettings().is24Hour;
         var firmwareVersion       = Sys.getDeviceSettings().firmwareVersion;
-        //var monkeyVersion         = Sys.getDeviceSettings().monkeyVersion;        
         var hrIter                = Act.getHeartRateHistory(null, true);
         var hr                    = hrIter.next();
         var steps                 = actinfo.steps;
@@ -150,7 +149,8 @@ class DigitalView extends Ui.WatchFace {
         var baseKcalMen   = (9.99 * userWeight) + (6.25 * userHeight) - (4.92 * userAge) + 5.0;             // base kcal men
         var baseKcalWoman = (9.99 * userWeight) + (6.25 * userHeight) - (4.92 * userAge) - 161.0;           // base kcal woman
         var baseKcal      = gender == MEN ? baseKcalMen : baseKcalWoman;                                    // base kcal related to gender        
-        if (!isFenix3Hr && firmwareVersion[0] > 2) { baseKcal += (baseKcal * 0.2); }                          // since 5.2 all Forerunner watches calculate now using BMR + 20%        
+        Sys.println(firmwareVersion[0]);
+        if (!isFenix3Hr && firmwareVersion[0] > 4) { baseKcal += (baseKcal * 0.2); }                          // since 5.2 all Forerunner watches calculate now using BMR + 20%        
         var kcalPerMinute = baseKcal / 1440;                                                                // base kcal per minute
         var activeKcal    = (kcal - (kcalPerMinute * (clockTime.hour * 60.0 + clockTime.min))).toNumber();  // active kcal
         var kcalReached   = kcal / baseKcal;
@@ -452,16 +452,18 @@ class DigitalView extends Ui.WatchFace {
 
     //! The user has just looked at their watch. Timers and animations may be started here.
     function onExitSleep() {
-        showSeconds = true;
-        if (null != timer) { timer.start(method(:callback), 1000, true); }
+        if (null != timer) {
+            showSeconds = true;
+            timer.start(method(:callback), 1000, true);
+        }
     }
 
     //! Terminate any active timers and prepare for slow updates.
     function onEnterSleep() {
-        showSeconds = false;
-        if (null != timer) { 
-            timer.stop(); 
-            Ui.requestUpdate();    
+        if (null != timer) {
+            showSeconds = false;
+            timer.stop();
+            Ui.requestUpdate();
         }
     }
     
