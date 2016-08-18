@@ -10,6 +10,10 @@ using Toybox.Time.Gregorian as Greg;
 using Toybox.Application as App;
 using Toybox.UserProfile as UserProfile;
 using Toybox.Ant as Ant;
+using Toybox.Timer as Timer;
+
+var timer;
+var showSeconds;
 
 
 class DigitalView extends Ui.WatchFace {
@@ -22,7 +26,11 @@ class DigitalView extends Ui.WatchFace {
     var chargeFont;
     var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon, bpmMaxRedIcon, bpmMaxBlackIcon;
     var alarmIcon, alertIcon, batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;    
-    var heartRate;    
+    var heartRate;
+    
+    function callback() {
+        Ui.requestUpdate();
+    }
 
     function initialize() {
         WatchFace.initialize();
@@ -60,6 +68,8 @@ class DigitalView extends Ui.WatchFace {
         weekdays[4]        = Ui.loadResource(Rez.Strings.Thu);
         weekdays[5]        = Ui.loadResource(Rez.Strings.Fri);
         weekdays[6]        = Ui.loadResource(Rez.Strings.Sat); 
+        timer              = new Timer.Timer();
+        showSeconds        = false;
     }
 
     //! Called when this View is brought to the foreground. Restore
@@ -88,6 +98,8 @@ class DigitalView extends Ui.WatchFace {
         var actinfo               = Act.getInfo();        
         var systemStats           = Sys.getSystemStats();
         var is24Hour              = Sys.getDeviceSettings().is24Hour;
+        var firmwareVersion       = Sys.getDeviceSettings().firmwareVersion;
+        //var monkeyVersion         = Sys.getDeviceSettings().monkeyVersion;        
         var hrIter                = Act.getHeartRateHistory(null, true);
         var hr                    = hrIter.next();
         var steps                 = actinfo.steps;
@@ -121,7 +133,7 @@ class DigitalView extends Ui.WatchFace {
         var userWeight;
         var userHeight;
         var userAge;
-        
+    
         if (profile == null) {
             gender     = Application.getApp().getProperty("Gender");
             userWeight = Application.getApp().getProperty("Weight");
@@ -137,7 +149,8 @@ class DigitalView extends Ui.WatchFace {
         // Mifflin-St.Jeor Formula (1990)
         var baseKcalMen   = (9.99 * userWeight) + (6.25 * userHeight) - (4.92 * userAge) + 5.0;             // base kcal men
         var baseKcalWoman = (9.99 * userWeight) + (6.25 * userHeight) - (4.92 * userAge) - 161.0;           // base kcal woman
-        var baseKcal      = gender == MEN ? baseKcalMen : baseKcalWoman;                                    // base kcal related to gender
+        var baseKcal      = gender == MEN ? baseKcalMen : baseKcalWoman;                                    // base kcal related to gender        
+        if (!isFenix3Hr && firmwareVersion[0] > 2) { baseKcal += (baseKcal * 0.2); }                          // since 5.2 all Forerunner watches calculate now using BMR + 20%        
         var kcalPerMinute = baseKcal / 1440;                                                                // base kcal per minute
         var activeKcal    = (kcal - (kcalPerMinute * (clockTime.hour * 60.0 + clockTime.min))).toNumber();  // active kcal
         var kcalReached   = kcal / baseKcal;
@@ -354,7 +367,10 @@ class DigitalView extends Ui.WatchFace {
                 dc.drawText(centerX, 25 + offsetY, timeFont, Lang.format("$1$:$2$", [clockTime.hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
             } else {
                 dc.drawText(centerX, 14 + offsetY, timeFontAnalog, Lang.format("$1$:$2$", [clockTime.hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
-            }    
+            }        
+            if (showSeconds) {
+                dc.drawText(178 + offsetX, (lcdFont ? (65 + offsetY) : (62 + offsetY)), lcdFont ? distanceFont : distanceFontAnalog, Lang.format("$1$", [clockTime.sec.format("%02d")]), Gfx.TEXT_JUSTIFY_LEFT);
+            }
         } else {
             var hour = clockTime.hour;
             var amPm = "am";
@@ -372,7 +388,10 @@ class DigitalView extends Ui.WatchFace {
             } else {
                 dc.drawText(centerX, 14 + offsetY, timeFontAnalog, Lang.format("$1$:$2$", [hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
                 dc.drawText(178 + offsetX, 62 + offsetY, distanceFontAnalog, amPm, Gfx.TEXT_JUSTIFY_LEFT);
-            }    
+            }
+            if (showSeconds) {
+                dc.drawText(178 + offsetX, (lcdFont ? (45 + offsetY) : (42 + offsetY)), lcdFont ? distanceFont : distanceFontAnalog, Lang.format("$1$", [clockTime.sec.format("%02d")]), Gfx.TEXT_JUSTIFY_LEFT);
+            }
         }        
     
         // Date and home timezone
@@ -432,12 +451,19 @@ class DigitalView extends Ui.WatchFace {
     function onHide() {}
 
     //! The user has just looked at their watch. Timers and animations may be started here.
-    function onExitSleep() {}
+    function onExitSleep() {
+        showSeconds = true;
+        if (null != timer) { timer.start(method(:callback), 1000, true); }
+    }
 
     //! Terminate any active timers and prepare for slow updates.
-    function onEnterSleep() {}
-    
-    function onSettingsChanged() {
-        //Sys.println("Settings changed");
+    function onEnterSleep() {
+        showSeconds = false;
+        if (null != timer) { 
+            timer.stop(); 
+            Ui.requestUpdate();    
+        }
     }
+    
+    function onSettingsChanged() {}
 }
