@@ -24,6 +24,9 @@ class DigitalView extends Ui.WatchFace {
     var alarmIcon, alertIcon, batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;    
     var heartRate;    
 
+    var timer;
+    var showSeconds;
+
     function initialize() {
         WatchFace.initialize();
     }
@@ -59,7 +62,9 @@ class DigitalView extends Ui.WatchFace {
         weekdays[3]        = Ui.loadResource(Rez.Strings.Wed);
         weekdays[4]        = Ui.loadResource(Rez.Strings.Thu);
         weekdays[5]        = Ui.loadResource(Rez.Strings.Fri);
-        weekdays[6]        = Ui.loadResource(Rez.Strings.Sat); 
+        weekdays[6]        = Ui.loadResource(Rez.Strings.Sat);
+        timer              = new Timer.Timer();
+        showSeconds        = false; 
     }
 
     //! Called when this View is brought to the foreground. Restore
@@ -355,7 +360,10 @@ class DigitalView extends Ui.WatchFace {
                 dc.drawText(centerX, 25 + offsetY, timeFont, Lang.format("$1$:$2$", [clockTime.hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
             } else {
                 dc.drawText(centerX, 14 + offsetY, timeFontAnalog, Lang.format("$1$:$2$", [clockTime.hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
-            }    
+            }
+            if (showSeconds) {
+                dc.drawText(178 + offsetX, (lcdFont ? (65 + offsetY) : (62 + offsetY)), lcdFont ? distanceFont : distanceFontAnalog, Lang.format("$1$", [clockTime.sec.format("%02d")]), Gfx.TEXT_JUSTIFY_LEFT);
+            }
         } else {
             var hour = clockTime.hour;
             var amPm = "am";
@@ -373,7 +381,10 @@ class DigitalView extends Ui.WatchFace {
             } else {
                 dc.drawText(centerX, 14 + offsetY, timeFontAnalog, Lang.format("$1$:$2$", [hour.format(showLeadingZero ? "%02d" : "%01d"), clockTime.min.format("%02d")]), Gfx.TEXT_JUSTIFY_CENTER);
                 dc.drawText(178 + offsetX, 62 + offsetY, distanceFontAnalog, amPm, Gfx.TEXT_JUSTIFY_LEFT);
-            }    
+            }
+            if (showSeconds) {
+                dc.drawText(178 + offsetX, (lcdFont ? (45 + offsetY) : (42 + offsetY)), lcdFont ? distanceFont : distanceFontAnalog, Lang.format("$1$", [clockTime.sec.format("%02d")]), Gfx.TEXT_JUSTIFY_LEFT);
+            }
         }        
     
         // Date and home timezone
@@ -409,7 +420,7 @@ class DigitalView extends Ui.WatchFace {
             } else {
                 dc.drawText(25 + offsetX, dateYPosition + offsetY, valueFontAnalog, Lang.format(weekdays[homeDayOfWeek] + dateFormat, [homeDay.format(showLeadingZero ? "%02d" : "%01d"), homeMonth.format(showLeadingZero ? "%02d" : "%01d")]), Gfx.TEXT_JUSTIFY_LEFT);
                 dc.drawText(190 + offsetX, dateYPosition + offsetY, valueFontAnalog, Lang.format("$1$:$2$", [homeHour.format(showLeadingZero ? "%02d" : "%01d"), homeMinute.format("%02d")]), Gfx.TEXT_JUSTIFY_RIGHT);
-            }            
+            }   
         } else {
             if (lcdFont) {
                 dc.drawText(centerX, dateYPosition + offsetY, dateFont, Lang.format(weekdays[dayOfWeek -1] + dateFormat, [nowinfo.day.format(showLeadingZero ? "%02d" : "%01d"), nowinfo.month.format(showLeadingZero ? "%02d" : "%01d")]), Gfx.TEXT_JUSTIFY_CENTER);
@@ -432,11 +443,26 @@ class DigitalView extends Ui.WatchFace {
     //! memory.
     function onHide() {}
 
+    function callback() {
+        Ui.requestUpdate();
+    }
+
     //! The user has just looked at their watch. Timers and animations may be started here.
-    function onExitSleep() {}
+    function onExitSleep() {
+        if (null != timer) {
+            showSeconds = true;
+            timer.start(method(:callback), 1000, true);
+        }
+    }
 
     //! Terminate any active timers and prepare for slow updates.
-    function onEnterSleep() {}
+    function onEnterSleep() {
+        if (null != timer) {
+            showSeconds = false;
+            timer.stop();
+            Ui.requestUpdate();
+        }
+    }
     
     function onSettingsChanged() {
         //Sys.println("Settings changed");
