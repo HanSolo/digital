@@ -12,9 +12,6 @@ using Toybox.UserProfile as UserProfile;
 using Toybox.Ant as Ant;
 using Toybox.Timer as Timer;
 
-var timer;
-var showSeconds;
-
 
 class DigitalView extends Ui.WatchFace {
     enum { WOMAN, MEN }
@@ -27,6 +24,9 @@ class DigitalView extends Ui.WatchFace {
     var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon, bpmMaxRedIcon, bpmMaxBlackIcon;
     var alarmIcon, alertIcon, batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;    
     var heartRate;
+    
+    var timer;
+    var showSeconds;
     
     function callback() {
         Ui.requestUpdate();
