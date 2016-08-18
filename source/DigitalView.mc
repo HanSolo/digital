@@ -10,7 +10,10 @@ using Toybox.Time.Gregorian as Greg;
 using Toybox.Application as App;
 using Toybox.UserProfile as UserProfile;
 using Toybox.Ant as Ant;
+using Toybox.Timer as Timer;
 
+var timer;
+var showSeconds;
 
 class DigitalView extends Ui.WatchFace {
     enum { WOMAN, MEN }
@@ -23,16 +26,15 @@ class DigitalView extends Ui.WatchFace {
     var bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon, bpmMaxRedIcon, bpmMaxBlackIcon;
     var alarmIcon, alertIcon, batteryIcon, bleIcon, bpmIcon, burnedIcon, mailIcon, stepsIcon;    
     var heartRate;    
-
-    var timer;
-    var showSeconds;
-
+    
     function initialize() {
+        timer       = new Timer.Timer();
+        showSeconds = false;
         WatchFace.initialize();
     }
 
-    //! Load your resources here
-    function onLayout(dc) {        
+    // Load your resources here
+    function onLayout(dc) {
         timeFont           = Ui.loadResource(Rez.Fonts.digitalUpright66);
         dateFont           = Ui.loadResource(Rez.Fonts.digitalUpright26);
         valueFont          = Ui.loadResource(Rez.Fonts.digitalUpright24);
@@ -63,20 +65,18 @@ class DigitalView extends Ui.WatchFace {
         weekdays[4]        = Ui.loadResource(Rez.Strings.Thu);
         weekdays[5]        = Ui.loadResource(Rez.Strings.Fri);
         weekdays[6]        = Ui.loadResource(Rez.Strings.Sat);
-        timer              = new Timer.Timer();
-        showSeconds        = false; 
     }
 
-    //! Called when this View is brought to the foreground. Restore
-    //! the state of this View and prepare it to be shown. This includes
-    //! loading resources into memory.
+    // Called when this View is brought to the foreground. Restore
+    // the state of this View and prepare it to be shown. This includes
+    // loading resources into memory.
     function onShow() {
     }
 
-    //! Update the view
-    function onUpdate(dc) {
+    // Update the view
+    function onUpdate(dc) {        
         View.onUpdate(dc);
-        
+                
         var bpmZoneIcons          = [ bpm1Icon, bpm2Icon, bpm3Icon, bpm4Icon, bpm5Icon ];
 
         // General
@@ -127,6 +127,7 @@ class DigitalView extends Ui.WatchFace {
         var userHeight;
         var userAge;
         
+        
         if (profile == null) {
             gender     = Application.getApp().getProperty("Gender");
             userWeight = Application.getApp().getProperty("Weight");
@@ -134,7 +135,7 @@ class DigitalView extends Ui.WatchFace {
             userAge    = Application.getApp().getProperty("Age");
         } else {
             gender     = profile.gender;
-            userWeight = profile.weight / 1000d;
+            userWeight = profile.weight / 1000.0;
             userHeight = profile.height;
             userAge    = nowinfo.year - profile.birthYear;            
         }
@@ -147,12 +148,10 @@ class DigitalView extends Ui.WatchFace {
         var kcalPerMinute = baseKcal / 1440;                                                                // base kcal per minute
         var activeKcal    = (kcal - (kcalPerMinute * (clockTime.hour * 60.0 + clockTime.min))).toNumber();  // active kcal
         var kcalReached   = kcal / baseKcal;
-
+        
         // Heart Rate Zones
         var showBpmZones  = Application.getApp().getProperty("BpmZones");        
         var maxBpm        = (211.0 - 0.64 * userAge).toNumber(); // calculated after a study at NTNU (http://www.ntnu.edu/cerg/hrmax-info)
-        var restBpm       = profile.restingHeartRate;
-        var vo2Max        = (15.0 * maxBpm / restBpm).toNumber();        
         var bpmZone1      = (0.5 * maxBpm).toNumber();
         var bpmZone2      = (0.6 * maxBpm).toNumber();
         var bpmZone3      = (0.7 * maxBpm).toNumber();
@@ -171,7 +170,7 @@ class DigitalView extends Ui.WatchFace {
         } else {
             currentZone = 1;
         }
-
+        
         // Draw Background
         dc.setPenWidth(1);     
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
@@ -195,7 +194,7 @@ class DigitalView extends Ui.WatchFace {
         
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
         dc.fillRectangle(106 + offsetX, 121 + offsetY, 3, 59);
-                    
+        
         // Notification
         if (notificationCount > 0) { dc.drawBitmap(58 + offsetX, 4 + offsetY, mailIcon); }    
             
@@ -429,42 +428,37 @@ class DigitalView extends Ui.WatchFace {
             }
         }
     }
-
+    
     function floor(x) {
         if(x > 0) { return x.toNumber(); }
         return (x - 0.9999999999999999).toNumber();
     }
     
-    function daysOfMonth(month) { return 28 + (month + floor(month / 8)) % 2 + 2 % month + 2 * floor(1 / month); }
+    function daysOfMonth(month) { 
+        return 28 + (month + floor(month / 8)) % 2 + 2 % month + 2 * floor(1 / month); 
+    }
 
+    // Called when this View is removed from the screen. Save the
+    // state of this View here. This includes freeing resources from
+    // memory.
+    function onHide() {
+    }
 
-    //! Called when this View is removed from the screen. Save the
-    //! state of this View here. This includes freeing resources from
-    //! memory.
-    function onHide() {}
-
+    // Will be called by timer
     function callback() {
         Ui.requestUpdate();
     }
 
     //! The user has just looked at their watch. Timers and animations may be started here.
-    function onExitSleep() {
-        if (null != timer) {
-            showSeconds = true;
-            timer.start(method(:callback), 1000, true);
-        }
+    function onExitSleep() {        
+        showSeconds = true;
+        timer.start(method(:callback), 1000, true);
     }
 
     //! Terminate any active timers and prepare for slow updates.
-    function onEnterSleep() {
-        if (null != timer) {
-            showSeconds = false;
-            timer.stop();
-            Ui.requestUpdate();
-        }
-    }
-    
-    function onSettingsChanged() {
-        //Sys.println("Settings changed");
+    function onEnterSleep() {        
+        timer.stop();
+        showSeconds = false;
+        Ui.requestUpdate();
     }
 }
