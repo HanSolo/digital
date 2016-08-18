@@ -90,7 +90,7 @@ class DigitalView extends Ui.WatchFace {
         var clockTime             = Sys.getClockTime();
         var midnightInfo          = Greg.info(Time.today(), Time.FORMAT_SHORT);
         var nowinfo               = Greg.info(Time.now(), Time.FORMAT_SHORT);
-        var actinfo               = Act.getInfo();        
+        var actinfo               = Act.getInfo();
         var systemStats           = Sys.getSystemStats();
         var is24Hour              = Sys.getDeviceSettings().is24Hour;
         var hrIter                = Act.getHeartRateHistory(null, true);
@@ -126,8 +126,7 @@ class DigitalView extends Ui.WatchFace {
         var userWeight;
         var userHeight;
         var userAge;
-        
-        
+
         if (profile == null) {
             gender     = Application.getApp().getProperty("Gender");
             userWeight = Application.getApp().getProperty("Weight");
@@ -142,13 +141,13 @@ class DigitalView extends Ui.WatchFace {
 
         // Mifflin-St.Jeor Formula (1990)
         var baseKcalMen   = (9.99 * userWeight) + (6.25 * userHeight) - (4.92 * userAge) + 5.0;             // base kcal men
-        var baseKcalWoman = (9.99 * userWeight) + (6.25 * userHeight) - (4.92 * userAge) - 161.0;           // base kcal woman
+        var baseKcalWoman = (9.99 * userWeight) + (6.25 * userHeight) - (4.92 * userAge) - 161.0;           // base kcal woman        
         var baseKcal      = gender == MEN ? baseKcalMen : baseKcalWoman;                                    // base kcal related to gender
-        baseKcal += (baseKcal * 0.2);                                                                       // since 5.2 all Forerunner watches calculate now using BMR + 20%
+        if (!isFenix3Hr) { baseKcal += (baseKcal * 0.2); }                                                  // since 5.2 all Forerunner watches calculate now using BMR + 20%
         var kcalPerMinute = baseKcal / 1440;                                                                // base kcal per minute
         var activeKcal    = (kcal - (kcalPerMinute * (clockTime.hour * 60.0 + clockTime.min))).toNumber();  // active kcal
         var kcalReached   = kcal / baseKcal;
-        
+
         // Heart Rate Zones
         var showBpmZones  = Application.getApp().getProperty("BpmZones");        
         var maxBpm        = (211.0 - 0.64 * userAge).toNumber(); // calculated after a study at NTNU (http://www.ntnu.edu/cerg/hrmax-info)
@@ -197,11 +196,11 @@ class DigitalView extends Ui.WatchFace {
         
         // Notification
         if (notificationCount > 0) { dc.drawBitmap(58 + offsetX, 4 + offsetY, mailIcon); }    
-            
+           
         // Battery
         dc.drawBitmap(93 + offsetX, 4 + offsetY, batteryIcon);
         dc.setColor(charge < 20 ? Gfx.COLOR_RED : Gfx.COLOR_WHITE, Gfx.COLOR_TRANSPARENT);
-        dc.fillRectangle(95 + offsetX, 6 + offsetY , 24.0 * charge / 100, 7);
+        dc.fillRectangle(95 + offsetX, 6 + offsetY , 24.0 * charge / 100.0, 7);
         if (showChargePercentage) {
             if (showPercentageUnder20) {
                 if (charge.toNumber() <= 20) {
@@ -223,7 +222,7 @@ class DigitalView extends Ui.WatchFace {
        // Steps
         dc.drawBitmap(18 + offsetX, 127 + offsetY, stepsIcon);
         dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
-        if (lcdFont) {
+        if (lcdFont) {            
             dc.drawText(102 + offsetX, 124 + offsetY, valueFont, steps, Gfx.TEXT_JUSTIFY_RIGHT);
         } else {
             dc.drawText(102 + offsetX, 119 + offsetY, valueFontAnalog, steps, Gfx.TEXT_JUSTIFY_RIGHT);
