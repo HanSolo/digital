@@ -143,7 +143,7 @@ class DigitalView extends Ui.WatchFace {
         var baseKcalMen   = (9.99 * userWeight) + (6.25 * userHeight) - (4.92 * userAge) + 5.0;             // base kcal men
         var baseKcalWoman = (9.99 * userWeight) + (6.25 * userHeight) - (4.92 * userAge) - 161.0;           // base kcal woman        
         var baseKcal      = gender == MEN ? baseKcalMen : baseKcalWoman;                                    // base kcal related to gender
-        if (!isFenix3Hr) { baseKcal += (baseKcal * 0.2); }                                                  // since 5.2 all Forerunner watches calculate now using BMR + 20%
+        if (!isFenix3Hr) { baseKcal += (baseKcal * 0.21385); }                                              // since 5.2 all Forerunner watches calculate now using BMR + 20%
         var kcalPerMinute = baseKcal / 1440;                                                                // base kcal per minute
         var activeKcal    = (kcal - (kcalPerMinute * (clockTime.hour * 60.0 + clockTime.min))).toNumber();  // active kcal
         var kcalReached   = kcal / baseKcal;
