@@ -89,4 +89,13 @@
 	<string id="ShowLeadingZero">Show leading zeroes</string>
 	
 	<string id="LcdFont">Lcd font</string>
+	
+	<string id="ShowStepBar">Show Steps bar</string>
+	
+	<string id="ShowCalorieBar">Show Calories bar</string>
+	
+	<string id="ColorizeStepText">Colorize Steps text</string>
+	
+	<string id="ColorizeCalorieText">Colorize Calories text</string>
+	
 </strings>

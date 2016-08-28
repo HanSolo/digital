@@ -115,5 +115,21 @@
     
     <setting propertyKey="@Properties.LcdFont" title="@Strings.LcdFont">
         <settingConfig type="boolean" />
-    </setting>    
+    </setting>
+    
+    <setting propertyKey="@Properties.ShowStepBar" title="@Strings.ShowStepBar">
+    	<settingConfig type="boolean" />
+    </setting>
+    
+    <setting propertyKey="@Properties.ShowCalorieBar" title="@Strings.ShowCalorieBar">
+    	<settingConfig type="boolean" />
+    </setting>
+    
+    <setting propertyKey="@Properties.ColorizeStepText" title="@Strings.ColorizeStepText">
+    	<settingConfig type="boolean" />
+    </setting>
+    
+    <setting propertyKey="@Properties.ColorizeCalorieText" title="@Strings.ColorizeCalorieText">
+    	<settingConfig type="boolean" />
+    </setting>
 </settings>

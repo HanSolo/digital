@@ -122,6 +122,10 @@ class DigitalView extends Ui.WatchFace {
         var showLeadingZero       = Application.getApp().getProperty("ShowLeadingZero");
         var lcdFont               = Application.getApp().getProperty("LcdFont");
         var moveBarLevel          = actinfo.moveBarLevel;
+        var showStepBar           = Application.getApp().getProperty("ShowStepBar");
+        var showCalorieBar        = Application.getApp().getProperty("ShowCalorieBar");
+        var colorizeStepText      = Application.getApp().getProperty("ColorizeStepText");
+        var colorizeCalorieText   = Application.getApp().getProperty("ColorizeCalorieText");
         var gender;
         var userWeight;
         var userHeight;
@@ -220,8 +224,14 @@ class DigitalView extends Ui.WatchFace {
         if (alarmCount > 0) { dc.drawBitmap(156 + offsetX, 3 + offsetY, alarmIcon); }
        
        // Steps
-        dc.drawBitmap(18 + offsetX, 127 + offsetY, stepsIcon);
-        dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+        dc.drawBitmap(18 + offsetX, 127 + offsetY, stepsIcon);        
+        if (colorizeStepText) {
+            stepsReached = stepsReached > 1.0 ? 1.0 : stepsReached;
+            var endIndex = (10.0 * stepsReached).toNumber();
+            dc.setColor(endIndex > 0 ? STEP_COLORS[endIndex - 1] : Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);            
+        } else {
+            dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+        }
         if (lcdFont) {            
             dc.drawText(102 + offsetX, 124 + offsetY, valueFont, steps, Gfx.TEXT_JUSTIFY_RIGHT);
         } else {
@@ -230,7 +240,19 @@ class DigitalView extends Ui.WatchFace {
             
         // KCal
         dc.drawBitmap(183 + offsetX, 127 + offsetY, burnedIcon);
-        dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+        if (colorizeCalorieText) {
+            if (kcalReached > 3.0) {
+                dc.setColor(Gfx.COLOR_PINK, Gfx.COLOR_TRANSPARENT);
+            } else if (kcalReached > 2.0) {
+                dc.setColor(Gfx.COLOR_GREEN, Gfx.COLOR_TRANSPARENT);
+            } else if (kcalReached > 1.0) {
+                dc.setColor(Gfx.COLOR_DK_BLUE, Gfx.COLOR_TRANSPARENT);
+            } else {
+                dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+            }
+        } else {
+            dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+        }
         if (showActiveKcalOnly) {            
             if (lcdFont) {
                 dc.drawText(179 + offsetX, 124 + offsetY, valueFont, activeKcal < 0 ? 0 : activeKcal.toString(), Gfx.TEXT_JUSTIFY_RIGHT);
@@ -268,57 +290,61 @@ class DigitalView extends Ui.WatchFace {
         }
                 
         // Step Bar background
-        dc.setPenWidth(8);           
-        dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
-        for(var i = 0; i < 10 ; i++) {            
-            var startAngleLeft  = 136 + (i * 6);
-            dc.drawArc(centerX, centerY, 105, 0, startAngleLeft, startAngleLeft + 5);
-        }
-        
-        // Step Goal Bar
-        stepsReached      = stepsReached > 1.0 ? 1.0 : stepsReached;                
-        var endIndex      = (10.0 * stepsReached).toNumber();        
-        var stopAngleLeft = (190.0 - 59.0 * stepsReached).toNumber();
-        stopAngleLeft     = stopAngleLeft < 136.0 ? 136.0 : stopAngleLeft;        
-        dc.setColor(endIndex > 0 ? STEP_COLORS[endIndex - 1] : Gfx.COLOR_TRANSPARENT, Gfx.COLOR_TRANSPARENT);
-        for(var i = 0; i < endIndex ; i++) {            
-            var startAngleLeft  = 190 - (i * 6);            
-            dc.drawArc(centerX, centerY, 105, 0, startAngleLeft, startAngleLeft + 5);
+        if (showStepBar) {
+            dc.setPenWidth(8);           
+            dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
+            for(var i = 0; i < 10 ; i++) {            
+                var startAngleLeft  = 136 + (i * 6);
+                dc.drawArc(centerX, centerY, 105, 0, startAngleLeft, startAngleLeft + 5);
+            }
+            
+            // Step Goal Bar
+            stepsReached      = stepsReached > 1.0 ? 1.0 : stepsReached;
+            var endIndex      = (10.0 * stepsReached).toNumber(); 
+            var stopAngleLeft = (190.0 - 59.0 * stepsReached).toNumber();
+            stopAngleLeft     = stopAngleLeft < 136.0 ? 136.0 : stopAngleLeft;        
+            dc.setColor(endIndex > 0 ? STEP_COLORS[endIndex - 1] : Gfx.COLOR_TRANSPARENT, Gfx.COLOR_TRANSPARENT);
+            for(var i = 0; i < endIndex ; i++) {            
+                var startAngleLeft  = 190 - (i * 6);            
+                dc.drawArc(centerX, centerY, 105, 0, startAngleLeft, startAngleLeft + 5);
+            }
         }
 
-        // KCal Goal Bar Background        
-        if (kcalReached > 3.0) {
-            dc.setColor(Gfx.COLOR_PINK, Gfx.COLOR_TRANSPARENT);
-        } else if (kcalReached > 2.0) {
-            dc.setColor(Gfx.COLOR_GREEN, Gfx.COLOR_TRANSPARENT);
-        } else if (kcalReached > 1.0) {
-            dc.setColor(Gfx.COLOR_DK_BLUE, Gfx.COLOR_TRANSPARENT);
-        } else {
-            dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
-        }
-        for(var i = 0; i < 10 ; i++) {            
-            var startAngleRight = -15 + (i * 6);         
-            dc.drawArc(centerX, centerY, 105, 0, startAngleRight, startAngleRight + 5);            
-        }
-                
-        // KCal Goal Bar
-        if (kcalReached > 3.0) {
-            dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
-            kcalReached -= 3.0;
-        } else if (kcalReached > 2.0) {
-            dc.setColor(Gfx.COLOR_PINK, Gfx.COLOR_TRANSPARENT);
-            kcalReached -= 2.0;
-        } else if (kcalReached > 1.0) {
-            dc.setColor(Gfx.COLOR_GREEN, Gfx.COLOR_TRANSPARENT);
-            kcalReached -= 1.0;
-        } else {
-            dc.setColor(Gfx.COLOR_DK_BLUE, Gfx.COLOR_TRANSPARENT);
-        }
-        var stopAngleRight = (-15.0 + 59.0 * kcalReached).toNumber();
-        stopAngleRight = stopAngleRight > 59.0 ? 59.0 : stopAngleRight;
-        for(var i = 0; i < 10 ; i++) {
-            var startAngleRight = -15 + (i * 6);
-            if (startAngleRight < stopAngleRight) { dc.drawArc(centerX, centerY, 105, 0, startAngleRight, startAngleRight + 5); }
+        // KCal Goal Bar Background
+        if (showCalorieBar) {
+            if (kcalReached > 3.0) {
+                dc.setColor(Gfx.COLOR_PINK, Gfx.COLOR_TRANSPARENT);
+            } else if (kcalReached > 2.0) {
+                dc.setColor(Gfx.COLOR_GREEN, Gfx.COLOR_TRANSPARENT);
+            } else if (kcalReached > 1.0) {
+                dc.setColor(Gfx.COLOR_DK_BLUE, Gfx.COLOR_TRANSPARENT);
+            } else {
+                dc.setColor(Gfx.COLOR_DK_GRAY, Gfx.COLOR_TRANSPARENT);
+            }
+            for(var i = 0; i < 10 ; i++) {            
+                var startAngleRight = -15 + (i * 6);         
+                dc.drawArc(centerX, centerY, 105, 0, startAngleRight, startAngleRight + 5);            
+            }
+                    
+            // KCal Goal Bar
+            if (kcalReached > 3.0) {
+                dc.setColor(Gfx.COLOR_YELLOW, Gfx.COLOR_TRANSPARENT);
+                kcalReached -= 3.0;
+            } else if (kcalReached > 2.0) {
+                dc.setColor(Gfx.COLOR_PINK, Gfx.COLOR_TRANSPARENT);
+                kcalReached -= 2.0;
+            } else if (kcalReached > 1.0) {
+                dc.setColor(Gfx.COLOR_GREEN, Gfx.COLOR_TRANSPARENT);
+                kcalReached -= 1.0;
+            } else {
+                dc.setColor(Gfx.COLOR_DK_BLUE, Gfx.COLOR_TRANSPARENT);
+            }
+            var stopAngleRight = (-15.0 + 59.0 * kcalReached).toNumber();
+            stopAngleRight = stopAngleRight > 59.0 ? 59.0 : stopAngleRight;
+            for(var i = 0; i < 10 ; i++) {
+                var startAngleRight = -15 + (i * 6);
+                if (startAngleRight < stopAngleRight) { dc.drawArc(centerX, centerY, 105, 0, startAngleRight, startAngleRight + 5); }
+            }
         }
 
         // Move Bar

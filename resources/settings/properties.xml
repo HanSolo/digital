@@ -29,4 +29,12 @@
     <property id="ShowLeadingZero" type="boolean">true</property>
     
     <property id="LcdFont" type="boolean">true</property>
+    
+    <property id="ShowStepBar" type="boolean">true</property>
+    
+    <property id="ShowCalorieBar" type="boolean">true</property>
+    
+    <property id="ColorizeStepText" type="boolean">false</property>
+    
+    <property id="ColorizeCalorieText" type="boolean">false</property>
 </properties>
