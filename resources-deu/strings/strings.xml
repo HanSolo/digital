@@ -90,6 +90,8 @@
 	
 	<string id="LcdFont">LCD Schriftart</string>
 	
+	<string id="ShowDeltaSteps">Differenz zum Tagesziel (Schritte) anzeigen</string>
+	
 	<string id="ShowStepBar">Steps Bar anzeigen</string>
 	
 	<string id="ShowCalorieBar">Calories Bar anzeigen</string>

@@ -97,6 +97,7 @@ class DigitalView extends Ui.WatchFace {
         var hr                    = hrIter.next();
         var steps                 = actinfo.steps;
         var stepGoal              = actinfo.stepGoal;
+        var deltaSteps            = stepGoal - steps;
         var stepsReached          = steps.toDouble() / stepGoal;        
         var kcal                  = actinfo.calories;        
         var showActiveKcalOnly    = Application.getApp().getProperty("ShowActiveKcalOnly");
@@ -121,6 +122,7 @@ class DigitalView extends Ui.WatchFace {
         var showMoveBar           = Application.getApp().getProperty("ShowMoveBar");
         var showLeadingZero       = Application.getApp().getProperty("ShowLeadingZero");
         var lcdFont               = Application.getApp().getProperty("LcdFont");
+        var showDeltaSteps        = Application.getApp().getProperty("ShowDeltaSteps");
         var moveBarLevel          = actinfo.moveBarLevel;
         var showStepBar           = Application.getApp().getProperty("ShowStepBar");
         var showCalorieBar        = Application.getApp().getProperty("ShowCalorieBar");
@@ -223,19 +225,27 @@ class DigitalView extends Ui.WatchFace {
         // Alarm
         if (alarmCount > 0) { dc.drawBitmap(156 + offsetX, 3 + offsetY, alarmIcon); }
        
-       // Steps
-        dc.drawBitmap(18 + offsetX, 127 + offsetY, stepsIcon);        
-        if (colorizeStepText) {
-            stepsReached = stepsReached > 1.0 ? 1.0 : stepsReached;
-            var endIndex = (10.0 * stepsReached).toNumber();
-            dc.setColor(endIndex > 0 ? STEP_COLORS[endIndex - 1] : Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);            
+        // Steps
+        dc.drawBitmap(18 + offsetX, 127 + offsetY, stepsIcon);
+        if (showDeltaSteps) {
+            if (deltaSteps > 0) {
+                dc.setColor(Gfx.COLOR_DK_RED, Gfx.COLOR_TRANSPARENT);
+            } else {
+                dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+            }
         } else {
-            dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+            if (colorizeStepText) {
+                stepsReached = stepsReached > 1.0 ? 1.0 : stepsReached;
+                var endIndex = (10.0 * stepsReached).toNumber();
+                dc.setColor(endIndex > 0 ? STEP_COLORS[endIndex - 1] : Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+            } else {
+                dc.setColor(Gfx.COLOR_BLACK, Gfx.COLOR_TRANSPARENT);
+            }
         }
-        if (lcdFont) {            
-            dc.drawText(102 + offsetX, 124 + offsetY, valueFont, steps, Gfx.TEXT_JUSTIFY_RIGHT);
+        if (lcdFont) {
+            dc.drawText(102 + offsetX, 124 + offsetY, valueFont, (showDeltaSteps ? deltaSteps.abs() : steps), Gfx.TEXT_JUSTIFY_RIGHT);
         } else {
-            dc.drawText(102 + offsetX, 119 + offsetY, valueFontAnalog, steps, Gfx.TEXT_JUSTIFY_RIGHT);
+            dc.drawText(102 + offsetX, 119 + offsetY, valueFontAnalog, (showDeltaSteps ? deltaSteps.abs() : steps), Gfx.TEXT_JUSTIFY_RIGHT);
         }
             
         // KCal

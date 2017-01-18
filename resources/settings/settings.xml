@@ -117,6 +117,10 @@
         <settingConfig type="boolean" />
     </setting>
     
+    <setting propertyKey="@Properties.ShowDeltaSteps" title="@Strings.ShowDeltaSteps">
+        <settingConfig type="boolean" />
+    </setting>
+    
     <setting propertyKey="@Properties.ShowStepBar" title="@Strings.ShowStepBar">
     	<settingConfig type="boolean" />
     </setting>

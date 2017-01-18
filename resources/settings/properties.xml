@@ -30,6 +30,8 @@
     
     <property id="LcdFont" type="boolean">true</property>
     
+    <property id="ShowDeltaSteps" type="boolean">false</property>
+    
     <property id="ShowStepBar" type="boolean">true</property>
     
     <property id="ShowCalorieBar" type="boolean">true</property>

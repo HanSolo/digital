@@ -90,6 +90,8 @@
 	
 	<string id="LcdFont">Lcd font</string>
 	
+	<string id="ShowDeltaSteps">Show delta to Step goal</string>
+	
 	<string id="ShowStepBar">Show Steps bar</string>
 	
 	<string id="ShowCalorieBar">Show Calories bar</string>
